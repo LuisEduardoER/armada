@@ -10,32 +10,24 @@
  */
 package gui;
 
+import table.ButtonEditor;
+import table.ButtonRenderer;
+import table.CenterTableCellRenderer;
 import classes.Sala;
-import classes.SalaTableModel;
-import java.awt.Dimension;
+import table.SalaTableModel;
 
 /**
  *
  * @author arthur
  */
 public class JanelaSalas extends javax.swing.JFrame {
-    
+
     private SalaTableModel model;
-    
+
     /** Creates new form JanelaSalas */
     public JanelaSalas() {
-        initComponents();
-        model = new SalaTableModel();
-        tabela.setModel(model);
-        
-        tabela.getColumnModel().getColumn(0).setPreferredWidth(150);
-        tabela.getColumnModel().getColumn(0).setResizable(false);
-        
-        tabela.getColumnModel().getColumn(1).setPreferredWidth(80);
-        tabela.getColumnModel().getColumn(1).setResizable(false);
-        
-        tabela.getColumnModel().getColumn(2).setPreferredWidth(80);
-        tabela.getColumnModel().getColumn(2).setResizable(false);
+        this.initComponents();
+        this.configurarTable();
     }
 
     /** This method is called from within the constructor to
@@ -49,14 +41,10 @@ public class JanelaSalas extends javax.swing.JFrame {
 
         painelBotoes = new javax.swing.JPanel();
         botaoCriarSala = new javax.swing.JButton();
-        botaoEntrar = new javax.swing.JButton();
         painelScroll = new javax.swing.JScrollPane();
         tabela = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setResizable(false);
-
-        painelBotoes.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
 
         botaoCriarSala.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/add.png"))); // NOI18N
         botaoCriarSala.setText("Criar Sala");
@@ -68,19 +56,9 @@ public class JanelaSalas extends javax.swing.JFrame {
         });
         painelBotoes.add(botaoCriarSala);
 
-        botaoEntrar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/entrar.png"))); // NOI18N
-        botaoEntrar.setText("Entrar");
-        botaoEntrar.setMargin(new java.awt.Insets(2, 2, 2, 2));
-        botaoEntrar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                botaoEntrarclicarBotaoCriarSala(evt);
-            }
-        });
-        painelBotoes.add(botaoEntrar);
-
         getContentPane().add(painelBotoes, java.awt.BorderLayout.PAGE_END);
 
-        painelScroll.setPreferredSize(new java.awt.Dimension(320, 380));
+        painelScroll.setPreferredSize(new java.awt.Dimension(350, 400));
 
         tabela.setFont(new java.awt.Font("Droid Sans Fallback", 0, 12)); // NOI18N
         tabela.setModel(new javax.swing.table.DefaultTableModel(
@@ -94,11 +72,9 @@ public class JanelaSalas extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        tabela.setDropMode(javax.swing.DropMode.ON);
         tabela.setRowHeight(30);
         tabela.setRowMargin(2);
-        tabela.setRowSelectionAllowed(true);
-        tabela.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tabela.setRowSelectionAllowed(false);
         tabela.setShowVerticalLines(false);
         painelScroll.setViewportView(tabela);
 
@@ -110,12 +86,6 @@ public class JanelaSalas extends javax.swing.JFrame {
 private void clicarBotaoCriarSala(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clicarBotaoCriarSala
     this.criarSala();
 }//GEN-LAST:event_clicarBotaoCriarSala
-
-private void botaoEntrarclicarBotaoCriarSala(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botaoEntrarclicarBotaoCriarSala
-// TODO add your handling code here:
-}//GEN-LAST:event_botaoEntrarclicarBotaoCriarSala
-
-    
 
     /**
      * @param args the command line arguments
@@ -152,17 +122,40 @@ private void botaoEntrarclicarBotaoCriarSala(java.awt.event.ActionEvent evt) {//
             }
         });
     }
-    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton botaoCriarSala;
-    private javax.swing.JButton botaoEntrar;
     private javax.swing.JPanel painelBotoes;
     private javax.swing.JScrollPane painelScroll;
     private javax.swing.JTable tabela;
     // End of variables declaration//GEN-END:variables
 
-    
-    private void criarSala(){
-        this.model.inserir(new Sala("CHEGAE", "Arthur", "Clássico"));
+    private void criarSala() {
+        this.model.inserir(new Sala("CHEGAE", Sala.ESPERANDO, "Arthur", "Clássico"));
+    }
+
+    private void configurarTable() {
+        CenterTableCellRenderer renderer = new CenterTableCellRenderer();
+        model = new SalaTableModel();
+        tabela.setModel(model);
+
+        tabela.getColumnModel().getColumn(0).setPreferredWidth(150);
+        //tabela.getColumnModel().getColumn(0).setResizable(false);
+
+        tabela.getColumnModel().getColumn(1).setPreferredWidth(90);
+        //tabela.getColumnModel().getColumn(1).setResizable(false);
+        tabela.getColumnModel().getColumn(1).setCellRenderer(renderer);
+
+        tabela.getColumnModel().getColumn(2).setPreferredWidth(80);
+        //tabela.getColumnModel().getColumn(2).setResizable(false);
+        tabela.getColumnModel().getColumn(2).setCellRenderer(renderer);
+        
+        tabela.getColumnModel().getColumn(3).setPreferredWidth(90);
+        //tabela.getColumnModel().getColumn(3).setResizable(false);
+        tabela.getColumnModel().getColumn(3).setCellRenderer(renderer);
+                
+        tabela.getColumnModel().getColumn(4).setPreferredWidth(60);
+        //tabela.getColumnModel().getColumn(4).setResizable(false);
+        tabela.getColumnModel().getColumn(4).setCellRenderer(new ButtonRenderer());
+        tabela.getColumnModel().getColumn(4).setCellEditor(new ButtonEditor());
     }
 }

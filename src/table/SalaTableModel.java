@@ -2,10 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package classes;
+package table;
 
+import classes.Sala;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JButton;
 import javax.swing.table.AbstractTableModel;
 
 /**
@@ -15,9 +17,10 @@ import javax.swing.table.AbstractTableModel;
 public class SalaTableModel extends AbstractTableModel {
 
     private final int COL_NOME = 0;
-    private final int COL_CRIADOR = 1;
-    private final int COL_TIPO_JOGO = 2;
-    
+    private final int COL_STATUS = 1;
+    private final int COL_CRIADOR = 2;
+    private final int COL_TIPO_JOGO = 3;
+    private final int COL_ENTRAR = 4;
     private List<Sala> salas;
 
     public SalaTableModel() {
@@ -36,47 +39,64 @@ public class SalaTableModel extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return 3;
+        return 5;
     }
-    
+
     @Override
     public String getColumnName(int column) {
-        if (column == COL_NOME) {
+        if(column == COL_NOME){
             return "Nome";
-        } else if (column == COL_CRIADOR) {
+        } else if(column == COL_CRIADOR){
             return "Criador";
-        } else if (column == COL_TIPO_JOGO) {
+        } else if(column == COL_STATUS){
+            return "Status";
+        } else if(column == COL_TIPO_JOGO){
             return "Tipo Jogo";
+        } else if(column == COL_ENTRAR){
+            return "Entrar";
         }
-        
+
         return "";
     }
-    
+
+    @Override
+    public boolean isCellEditable(int rowIndex, int column) {
+        if(column == COL_ENTRAR){
+            return true;
+        }
+
+        return false;
+    }
+
     @Override
     public Class<?> getColumnClass(int column) {
-        if (column == COL_NOME) {
-            return String.class;
-        } else if (column == COL_CRIADOR) {
-            return String.class;
-        } else if (column == COL_TIPO_JOGO) {
-            return String.class;
-        }
-        
         return String.class;
     }
-    
+
     @Override
     public Object getValueAt(int rowIndex, int column) {
         Sala s = salas.get(rowIndex);
 
-        if (column == COL_NOME) {
+        if(column == COL_NOME){
             return s.getNome();
-        } else if (column == COL_CRIADOR) {
+        } else if(column == COL_CRIADOR){
             return s.getCriador();
-        } else if (column == COL_TIPO_JOGO) {
+        } else if(column == COL_STATUS){
+            int status = s.getStatus();
+            if(status == Sala.ESPERANDO) {
+                return "Esperando";
+            } else if(status == Sala.JOGANDO) {
+                return "Jogando";
+            }
+        } else if(column == COL_TIPO_JOGO){
             return s.getTipoJogo();
+        } else if(column == COL_ENTRAR){
+            JButton botao = new JButton();
+            botao.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/entrar.png")));
+            botao.setText("");
+            return botao;
         }
-        
+
         return "";
     }
 
@@ -84,17 +104,19 @@ public class SalaTableModel extends AbstractTableModel {
     public void setValueAt(Object aValue, int rowIndex, int column) {
         Sala s = salas.get(rowIndex);
 
-        if (column == COL_NOME) {
+        if(column == COL_NOME){
             s.setNome(aValue.toString());
-        } else if (column == COL_CRIADOR) {
+        } else if(column == COL_STATUS){
+            s.setStatus((Integer) aValue);
+        } else if(column == COL_CRIADOR){
             s.setCriador(aValue.toString());
-        } else if (column == COL_TIPO_JOGO) {
+        } else if(column == COL_TIPO_JOGO){
             s.setTipoJogo(aValue.toString());
         }
 
         fireTableDataChanged();
     }
-    
+
     public void inserir(Sala p) {
         salas.add(p);
         fireTableDataChanged();
