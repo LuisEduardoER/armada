@@ -10,12 +10,17 @@ package classes;
  */
 public class Sala {
 
+    public static final int ESPERANDO = 0;
+    public static final int JOGANDO = 1;
+    
     private String nome;
+    private int status;
     private String criador;
     private String tipoJogo;
 
-    public Sala(String nome, String criador, String tipoJogo) {
+    public Sala(String nome, int status, String criador, String tipoJogo) {
         this.nome = nome;
+        this.status = status;
         this.criador = criador;
         this.tipoJogo = tipoJogo;
     }
@@ -42,5 +47,13 @@ public class Sala {
 
     public void setTipoJogo(String tipoJogo) {
         this.tipoJogo = tipoJogo;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }
