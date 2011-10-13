@@ -10,15 +10,21 @@
  */
 package gui;
 
+import java.io.IOException;
+import javax.swing.SwingUtilities;
+
 /**
  *
  * @author arthur
  */
-public class JanelaPrincipal extends javax.swing.JFrame {
+public abstract class JanelaPrincipal extends javax.swing.JFrame {
+
+    private String jogador;
 
     /** Creates new form JanelaPrincipal */
     public JanelaPrincipal() {
         initComponents();
+        
     }
 
     /** This method is called from within the constructor to
@@ -155,6 +161,7 @@ public class JanelaPrincipal extends javax.swing.JFrame {
         painelScrollChat = new javax.swing.JScrollPane();
         campoChat = new javax.swing.JTextArea();
         campoMensagem = new javax.swing.JTextField();
+        jogadoresComboBox = new javax.swing.JComboBox();
         painelInformacoes = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         jButton73 = new javax.swing.JButton();
@@ -813,14 +820,23 @@ public class JanelaPrincipal extends javax.swing.JFrame {
 
         painelSeparacao.setRightComponent(painelPrincipal);
 
-        painelChat.setLayout(new java.awt.BorderLayout());
+        painelChat.setLayout(new java.awt.BorderLayout(0, 4));
 
         campoChat.setColumns(15);
         campoChat.setRows(5);
         painelScrollChat.setViewportView(campoChat);
 
         painelChat.add(painelScrollChat, java.awt.BorderLayout.CENTER);
+
+        campoMensagem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                campoMensagemActionPerformed(evt);
+            }
+        });
         painelChat.add(campoMensagem, java.awt.BorderLayout.PAGE_END);
+
+        jogadoresComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        painelChat.add(jogadoresComboBox, java.awt.BorderLayout.LINE_END);
 
         painelInformacoes.setLayout(new java.awt.GridBagLayout());
 
@@ -871,17 +887,24 @@ public class JanelaPrincipal extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+private void campoMensagemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_campoMensagemActionPerformed
+// TODO add your handling code here:
+    try {
+        String dest = getDestinatario();
+        if (dest.equals("All")) {
+            sendDataToAll(campoMensagem.getText());
+        } else {
+            sendDataTo(dest, campoMensagem.getText());
+        }
+    } catch (IOException ex) {
+    }
+    campoMensagem.setText("");
+
+}//GEN-LAST:event_campoMensagemActionPerformed
+
     /**
      * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-
-            public void run() {
-                new JanelaPrincipal().setVisible(true);
-            }
-        });
-    }
+     */    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextArea campoChat;
     private javax.swing.JTextField campoMensagem;
@@ -1004,6 +1027,7 @@ public class JanelaPrincipal extends javax.swing.JFrame {
     private javax.swing.JRadioButton jRadioButton3;
     private javax.swing.JRadioButton jRadioButton4;
     private javax.swing.JRadioButton jRadioButton5;
+    private javax.swing.JComboBox jogadoresComboBox;
     private javax.swing.JPanel painelChat;
     private javax.swing.JPanel painelInformacoes;
     private javax.swing.JPanel painelPlacar;
@@ -1016,4 +1040,46 @@ public class JanelaPrincipal extends javax.swing.JFrame {
     private javax.swing.JPanel painelTabuleiroJogador1;
     private javax.swing.JPanel painelTabuleiroJogador2;
     // End of variables declaration//GEN-END:variables
+
+        
+    public abstract void sendDataTo(String destinatario, String message) throws IOException;
+    
+    public abstract void sendDataToAll(String message) throws IOException;
+    
+    public abstract void onClose() throws IOException;
+    
+    public void setUsersModel(Object[] users){        
+        jogadoresComboBox.setModel(new javax.swing.DefaultComboBoxModel(users));
+        if(jogadoresComboBox.getItemCount() > 2) jogadoresComboBox.setVisible(true);
+        else jogadoresComboBox.setVisible(false);
+    }
+    
+     public void displayMessage(final String messageToDisplay) {
+        SwingUtilities.invokeLater(
+                new Runnable() {
+
+                    @Override
+                    public void run() {
+                        campoChat.append(messageToDisplay + "\n");
+                    }
+                });
+    }
+    
+    public String getDestinatario(){
+        return (String) jogadoresComboBox.getSelectedItem();
+    }
+
+    public String getJogador() {
+        return jogador;
+    }
+
+    public void setJogador(String jogador) {
+        this.jogador = jogador;
+    }
+    
+    public String getName(){
+        return this.jogador;
+    }
+    
+    
 }
