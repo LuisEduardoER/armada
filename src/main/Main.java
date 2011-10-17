@@ -4,7 +4,6 @@
  */
 package main;
 
-import gui.JanelaSalas;
 
 /**
  *
@@ -12,11 +11,14 @@ import gui.JanelaSalas;
  */
 public class Main {
 
+    public static Jogo jogo;
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        JanelaSalas janelaSalas = new JanelaSalas();
-        janelaSalas.setVisible(true);
+        jogo = new Jogo();
+    }
+    
+    public static void mostrarJanelaPrincipal(){
     }
 }

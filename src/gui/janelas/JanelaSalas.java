@@ -8,12 +8,12 @@
  *
  * Created on Oct 3, 2011, 7:35:39 PM
  */
-package gui;
+package gui.janelas;
 
+import classes.Sala;
 import table.ButtonEditor;
 import table.ButtonRenderer;
 import table.CenterTableCellRenderer;
-import classes.Sala;
 import table.SalaTableModel;
 
 /**
@@ -49,6 +49,11 @@ public class JanelaSalas extends javax.swing.JFrame {
         botaoCriarSala.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/add.png"))); // NOI18N
         botaoCriarSala.setText("Criar Sala");
         botaoCriarSala.setMargin(new java.awt.Insets(2, 2, 2, 2));
+        botaoCriarSala.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                clicarCriarSala(evt);
+            }
+        });
         botaoCriarSala.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 clicarBotaoCriarSala(evt);
@@ -60,7 +65,7 @@ public class JanelaSalas extends javax.swing.JFrame {
 
         painelScroll.setPreferredSize(new java.awt.Dimension(350, 400));
 
-        tabela.setFont(new java.awt.Font("Droid Sans Fallback", 0, 12)); // NOI18N
+        tabela.setFont(new java.awt.Font("Droid Sans Fallback", 0, 12));
         tabela.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -86,6 +91,10 @@ public class JanelaSalas extends javax.swing.JFrame {
 private void clicarBotaoCriarSala(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clicarBotaoCriarSala
     this.criarSala();
 }//GEN-LAST:event_clicarBotaoCriarSala
+
+private void clicarCriarSala(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_clicarCriarSala
+    // TODO add your handling code here:
+}//GEN-LAST:event_clicarCriarSala
 
     /**
      * @param args the command line arguments

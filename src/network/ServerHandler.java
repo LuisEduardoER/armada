@@ -71,8 +71,10 @@ public class ServerHandler implements IDataHandler, IConnectHandler, IDisconnect
             String d = "";
             if(!dest.equals("")) d = " to " + dest;
             if(message.charAt(0) != '#' && (dest.equals(ServerMain.getServidor().getName()) || dest.equals("") ||
-                    nome.equals(ServerMain.getServidor().getName())))
-                ServerMain.getServidor().displayMessage(nome + d + ": " + message);
+                    nome.equals(ServerMain.getServidor().getName()))){
+                //ServerMain.getServidor().displayMessage(nome + d + ": " + message);
+                
+            }
         } catch(Exception ex){
             System.out.println("sendMessageToAll: " + ex.getMessage());
         }
@@ -106,7 +108,7 @@ public class ServerHandler implements IDataHandler, IConnectHandler, IDisconnect
         sendMessageToAll(ServerMain.getServidor().getName(), n1);
         n2 = n2.substring(1);
         String[] users = n2.split("~~");
-        ServerMain.getServidor().setUsersModel(users);        
+        //ServerMain.getServidor().setUsersModel(users);        
     }
 
     @Override

@@ -4,7 +4,7 @@
  */
 package main;
 
-import gui.JanelaCliente;
+import gui.janelas.JanelaCliente;
 import javax.swing.JFrame;
 
 /**

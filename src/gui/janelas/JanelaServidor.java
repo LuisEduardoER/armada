@@ -4,35 +4,39 @@
  */
 
 /*
- * JanelaCliente.java
+ * JanelaServidor.java
  *
- * Created on 13/10/2011, 15:07:37
+ * Created on 13/10/2011, 16:15:22
  */
-
-package gui;
+package gui.janelas;
 
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import network.ClientHandler;
-import org.xsocket.connection.INonBlockingConnection;
-import org.xsocket.connection.NonBlockingConnection;
+import javax.swing.JFrame;
+import network.ServerHandler;
+import org.xsocket.connection.IServer;
+import org.xsocket.connection.Server;
 
 /**
  *
  * @author dolalima
  */
-public class JanelaCliente extends JanelaPrincipal {
-    
-    private INonBlockingConnection bc;
+public class JanelaServidor extends JFrame {
 
-    /** Creates new form JanelaCliente */
-    public JanelaCliente() {
+    private IServer srv;
+    private ServerHandler handler;
+
+    /** Creates new form JanelaServidor */
+    public JanelaServidor() {
         initComponents();
-        this.setJogador("Cliente");
+
         try {
-            bc = new NonBlockingConnection("localhost", 8090, new ClientHandler());
-        } catch(IOException ioException){
+            handler = new ServerHandler();
+            srv = new Server(8090, handler);
+            //this.displayMessage("Esperando Conexão...");
+            srv.start();
+        } catch (IOException ioException) {
             Logger.getLogger(JanelaCliente.class.getName()).log(Level.SEVERE, null, ioException);
         }
     }
@@ -63,39 +67,27 @@ public class JanelaCliente extends JanelaPrincipal {
     }// </editor-fold>//GEN-END:initComponents
 
     /**
-    * @param args the command line arguments
-    */
-    
-
+     * @param args the command line arguments
+     */
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
-
-    @Override
+    //@Override
     public void sendDataTo(String destinatario, String message) throws IOException {
-        bc.write(getName() + "~~" + destinatario + "~~" + message + "\n");
+        handler.sendMessageTo(getName(), destinatario, message);
     }
 
-    @Override
+    //@Override
     public void sendDataToAll(String message) throws IOException {
-        bc.write(getName() + "~~" + message + "\n");
+        handler.sendMessageToAll(getName(), message);
     }
 
-    @Override
+    //@Override
     public void onClose() throws IOException {
-        Thread t = new Thread() {
-            @Override
-            public void start() {
-                try {
-                    sendDataToAll("Desconectou-se");
-                } catch(IOException ex){ }
-            }
-        };
-        t.start();
         try {
-            Thread.sleep(100);
-        } catch(InterruptedException ex){ }
-        bc.close();
+            sendDataToAll("Saiu");
+            srv.close();
+        } catch (IOException ex) {
+            Logger.getLogger(JanelaServidor.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
-    
-
 }

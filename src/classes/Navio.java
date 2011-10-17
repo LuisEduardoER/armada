@@ -1,39 +1,56 @@
 package classes;
 
-import java.awt.Image;
-
 public abstract class Navio {
+    
+    public static final String VIVO = "vivo.png";
+    public static final String MORTO = "morto.png";
 
+    protected String nome;
     protected int[] pos;
     protected int tamanho;
-    protected Image[] modelo;
+    protected String caminhoImagens;
     protected Orientacao orientacao;
+    protected boolean vivo;
 
     public Navio() {
         this.pos = null;
         this.tamanho = 10;
-        this.modelo = null;
         this.orientacao = Orientacao.HORIZONTAL;
+        this.vivo= true;
     }
 
+    public Navio(String nome, int tamanho, String caminhoImagens) {
+        this.nome = nome;
+        this.tamanho = tamanho;
+        this.caminhoImagens = caminhoImagens;
+    }
 
-    public Navio(int[] pos, int tamanho, Image[] modelo, Orientacao orientacao) {
+    public Navio(int[] pos, int tamanho, String caminhoImagens, Orientacao orientacao, boolean vivo) {
         this.pos = pos;
         this.tamanho = tamanho;
-        this.modelo = modelo;
+        this.caminhoImagens = caminhoImagens;
         this.orientacao = orientacao;
+        this.vivo = vivo;
     }
 
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
     
-    public Image[] getModelo() {
-        return modelo;
+    
+    public String getCaminhoImagens() {
+        return caminhoImagens;
     }
 
-    public void setModelo(Image[] modelo) {
-        this.modelo = modelo;
+    public void setCaminhoImagens(String caminhoImagens) {
+        this.caminhoImagens = caminhoImagens;
     }
-
-
+    
+    
     public Orientacao getOrientacao() {
         return orientacao;
     }
@@ -59,4 +76,12 @@ public abstract class Navio {
     public void setTamanho(int tamanho) {
         this.tamanho = tamanho;
     }
+
+    public boolean isVivo() {
+        return vivo;
+    }
+
+    public void setVivo(boolean vivo) {
+        this.vivo = vivo;
+    }    
 }
