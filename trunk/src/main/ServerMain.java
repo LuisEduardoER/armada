@@ -4,7 +4,7 @@
  */
 package main;
 
-import gui.JanelaServidor;
+import gui.janelas.JanelaServidor;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;

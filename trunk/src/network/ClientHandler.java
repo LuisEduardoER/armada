@@ -35,15 +35,15 @@ public class ClientHandler implements IDataHandler, IConnectHandler {
                     if(ClienteMain.application.getName().equals(u.get(i))) u.remove(i);
                 }
                 
-                ClienteMain.application.setUsersModel(u.toArray());
+                //ClienteMain.application.setUsersModel(u.toArray());
             } else {
                 String[] m = message.split("~~");
                 if(m.length == 3){
                     if(m[1].equals(ClienteMain.application.getName()) || m[0].equals(ClienteMain.application.getName())){
-                        ClienteMain.application.displayMessage(m[0] + " to " + m[1] + ": " + m[2]);
+                        //ClienteMain.application.displayMessage(m[0] + " to " + m[1] + ": " + m[2]);
                     }
                 } else {
-                    ClienteMain.application.displayMessage(m[0] + ": " + m[1]);
+                    //ClienteMain.application.displayMessage(m[0] + ": " + m[1]);
                 }
             }
 

@@ -3,11 +3,11 @@ package classes;
 public class Tabuleiro {
 
     private int tamanho;
-    private Casa[] casas;
+    private Casa[][] casas;
 
-    public Tabuleiro(int tamanho, Casa[] casas) {
+    public Tabuleiro(int tamanho) {
         this.tamanho = tamanho;
-        this.casas = casas;
+        this.casas = new Casa[tamanho][tamanho];
     }
 
     public int getTamanho() {
@@ -19,11 +19,11 @@ public class Tabuleiro {
     }
     
 
-    public Casa[] getCasas() {
+    public Casa[][] getCasas() {
         return casas;
     }
 
-    public void setCasas(Casa[] casas) {
+    public void setCasas(Casa[][] casas) {
         this.casas = casas;
     }
 }
