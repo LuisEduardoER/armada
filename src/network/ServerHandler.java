@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import main.ServerMain;
+//import main.DB;
 import org.xsocket.connection.IConnectExceptionHandler;
 import org.xsocket.connection.IConnectHandler;
 import org.xsocket.connection.IDataHandler;
@@ -70,11 +70,9 @@ public class ServerHandler implements IDataHandler, IConnectHandler, IDisconnect
             }
             String d = "";
             if(!dest.equals("")) d = " to " + dest;
-            if(message.charAt(0) != '#' && (dest.equals(ServerMain.getServidor().getName()) || dest.equals("") ||
-                    nome.equals(ServerMain.getServidor().getName()))){
-                //ServerMain.getServidor().displayMessage(nome + d + ": " + message);
-                
-            }
+            if(message.charAt(0) != '#' && (dest.equals(Servidor.getNome()) || dest.equals("") ||
+                    nome.equals(Servidor.getNome())))
+                Servidor.displayMessage(nome + d + ": " + message);
         } catch(Exception ex){
             System.out.println("sendMessageToAll: " + ex.getMessage());
         }
@@ -86,6 +84,7 @@ public class ServerHandler implements IDataHandler, IConnectHandler, IDisconnect
 
     @Override
     public boolean onConnect(INonBlockingConnection nbc) throws IOException {
+        //DB.inserirLog(nbc.getRemoteAddress().getHostAddress());
         connections.add(nbc);
         return true;
     }
@@ -99,20 +98,23 @@ public class ServerHandler implements IDataHandler, IConnectHandler, IDisconnect
     }
     
     private void updateUsuarios(){
-        String n1 = "#All~~" + ServerMain.getServidor().getName();
+        String n1 = "#All~~" + Servidor.getNome();
         String n2 = "#All";
         for(int i = 0; i < names.size(); i++){
             n1 += "~~" + names.get(i);
             n2 += "~~" + names.get(i);
         }
-        sendMessageToAll(ServerMain.getServidor().getName(), n1);
+        sendMessageToAll(Servidor.getNome(), n1);
         n2 = n2.substring(1);
         String[] users = n2.split("~~");
+        
+        //Transfroma isso em metodo 
         //ServerMain.getServidor().setUsersModel(users);        
     }
 
     @Override
     public boolean onConnectException(INonBlockingConnection inbc, IOException ioe) throws IOException {
+        //DB.inserirBlacklist(inbc.getRemoteAddress().getHostAddress());
         return true;
     }
 }

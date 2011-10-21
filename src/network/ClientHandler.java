@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import main.ClienteMain;
 import org.xsocket.MaxReadSizeExceededException;
 import org.xsocket.connection.IConnectHandler;
 import org.xsocket.connection.IDataHandler;
@@ -32,18 +31,18 @@ public class ClientHandler implements IDataHandler, IConnectHandler {
                 ArrayList<String> u = new ArrayList();
                 u.addAll(Arrays.asList(users));
                 for(int i = 0; i < u.size(); i++){
-                    if(ClienteMain.application.getName().equals(u.get(i))) u.remove(i);
+                    if(Cliente.getNome().equals(u.get(i))) u.remove(i);
                 }
                 
-                //ClienteMain.application.setUsersModel(u.toArray());
+                //ClientMain.application.setUsersModel(u.toArray());
             } else {
                 String[] m = message.split("~~");
                 if(m.length == 3){
-                    if(m[1].equals(ClienteMain.application.getName()) || m[0].equals(ClienteMain.application.getName())){
-                        //ClienteMain.application.displayMessage(m[0] + " to " + m[1] + ": " + m[2]);
+                    if(m[1].equals(Cliente.getNome()) || m[0].equals(Cliente.getNome())){
+                        Cliente.displayMessage(m[0] + " to " + m[1] + ": " + m[2]);
                     }
                 } else {
-                    //ClienteMain.application.displayMessage(m[0] + ": " + m[1]);
+                    Cliente.displayMessage(m[0] + ": " + m[1]);
                 }
             }
 
@@ -61,7 +60,7 @@ public class ClientHandler implements IDataHandler, IConnectHandler {
             public void start(){
                 try {
                     try { Thread.sleep(250); } catch(InterruptedException ex){ }
-                    inbc.write(ClienteMain.application.getName() + "~~" + "Conectou-se\n");
+                    inbc.write(Cliente.getNome() + "~~" + "Conectou-se\n");
                 } catch(IOException ex){
                     Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
                 }
