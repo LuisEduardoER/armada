@@ -5,27 +5,64 @@
 package network;
 
 import java.io.IOException;
-import java.nio.BufferUnderflowException;
-import java.nio.channels.ClosedChannelException;
-import org.xsocket.MaxReadSizeExceededException;
-import org.xsocket.connection.IConnectHandler;
-import org.xsocket.connection.IDataHandler;
 import org.xsocket.connection.INonBlockingConnection;
+import org.xsocket.connection.NonBlockingConnection;
 
 /**
  *
- * @author Dola
+ * @author dolalima
  */
-public class Cliente implements IDataHandler, IConnectHandler {
+public class Cliente {
 
-    @Override
-    public boolean onData(INonBlockingConnection inbc) throws IOException, BufferUnderflowException, ClosedChannelException, MaxReadSizeExceededException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    private static String nome;
+    private INonBlockingConnection bc;
+
+    public Cliente(String nome) {
+        this.nome = nome;
+        try {
+            bc = new NonBlockingConnection("localhost", 8090, new ClientHandler());
+        } catch (IOException ioException) {
+            System.out.println("Erro ao Conecta");
+
+        }
     }
 
-    @Override
-    public boolean onConnect(INonBlockingConnection inbc) throws IOException, BufferUnderflowException, MaxReadSizeExceededException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public static String getNome() {
+        return nome;
     }
+
+   
+    public void sendDataTo(String destinatario, String message) throws IOException {
+        bc.write(getNome() + "~~" + destinatario + "~~" + message + "\n");
+    }
+
+   
+    public void sendDataToAll(String message) throws IOException {
+        bc.write(getNome() + "~~" + message + "\n");
+    }
+
     
+    public void onClose() throws IOException {
+        Thread t = new Thread() {
+
+            @Override
+            public void start() {
+                try {
+                    sendDataToAll("Desconectou-se");
+                } catch (IOException ex) {
+                }
+            }
+        };
+        t.start();
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException ex) {
+        }
+        bc.close();
+
+    }
+
+    static void displayMessage(String messege) {
+        System.out.println(messege);
+    }
 }
