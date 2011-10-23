@@ -22,7 +22,7 @@ import javax.swing.SwingConstants;
 public class BotaoPlacar extends JButton {
     
     public static final int LARGURA = 165;
-    public static final int ALTURA = 55;    
+    public static final int ALTURA = 51;    
     
     private ArrayList<Navio> navios;
     
@@ -41,8 +41,9 @@ public class BotaoPlacar extends JButton {
         nome.setHorizontalAlignment(SwingConstants.CENTER);
         
         qtdeNavios = new JLabel(String.valueOf(navios.size()));
-        qtdeNavios.setFont(new Font("Verdana", Font.BOLD, 16));
-        qtdeNavios.setVerticalAlignment(SwingConstants.NORTH);
+        qtdeNavios.setFont(new Font("Droid Sans Fallback", Font.BOLD, 14));
+        qtdeNavios.setVerticalAlignment(SwingConstants.TOP);
+        qtdeNavios.setHorizontalAlignment(SwingConstants.CENTER);
         qtdeNavios.setForeground(Color.blue);
         
         icone = new JLabel(new ImageIcon(getClass().getResource(navio.getCaminhoImagens() + Navio.VIVO)));
