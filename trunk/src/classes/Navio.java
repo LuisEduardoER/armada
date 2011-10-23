@@ -1,5 +1,7 @@
 package classes;
 
+import java.util.ArrayList;
+
 public abstract class Navio {
     
     public static final String VIVO = "vivo.png";
@@ -83,5 +85,22 @@ public abstract class Navio {
 
     public void setVivo(boolean vivo) {
         this.vivo = vivo;
-    }    
+    }
+
+    public ArrayList<Integer[]> getCoordenadas() {
+        int x = this.pos[0];
+        int y = this.pos[1];
+        ArrayList<Integer[]> lista = new ArrayList<Integer[]>();
+
+        for(int i = 0; i < this.tamanho; i++){
+            lista.add(new Integer[]{x, y});
+            if(this.orientacao == Orientacao.HORIZONTAL){
+                x++;
+            } else {
+                y++;
+            }
+        }
+
+        return lista;
+    }
 }

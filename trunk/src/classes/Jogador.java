@@ -19,7 +19,7 @@ public class Jogador {
             new Cruzador()
     };
         
-        this.tabuleiro = new Tabuleiro(12);
+        this.tabuleiro = new Tabuleiro(13);
     }
 
         

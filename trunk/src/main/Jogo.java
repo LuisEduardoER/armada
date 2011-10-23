@@ -7,7 +7,9 @@ package main;
 import gui.janelas.JanelaPrincipal;
 import classes.Jogador;
 import classes.Navio;
+import classes.Orientacao;
 import gui.janelas.JanelaSalas;
+import gui.paineis.PainelPrincipal;
 
 /**
  *
@@ -19,7 +21,7 @@ public class Jogo {
     private JanelaPrincipal janelaPrincipal;
     
     private Jogador jogador1;
-    private Jogador jogador2;    
+    private Jogador jogador2;
     
     private Navio navioSelecionado;
 
@@ -44,7 +46,11 @@ public class Jogo {
         if(this.navioSelecionado != null) {
             this.navioSelecionado.setPos(pos);
             this.navioSelecionado = null;
-            this.janelaPrincipal.getTabuleiros()[JanelaPrincipal.JOGADOR].atualizarPosicaoNavios();
+            this.janelaPrincipal.getTabuleiros()[PainelPrincipal.JOGADOR].atualizarPosicaoNavios();
         }
+    }
+    
+    public void selecionarOrientacao(Orientacao orientacao){
+        this.navioSelecionado.setOrientacao(orientacao);
     }
 }
