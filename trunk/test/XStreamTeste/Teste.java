@@ -5,7 +5,7 @@
 package XStreamTeste;
 
 import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.DomDriver;
+
 
 /**
  *
@@ -27,11 +27,12 @@ public class Teste {
         System.out.println("Gera XML de uma classe.");
         jogador = new Player("Carlos Eduardo", "dolalima@gmail.com",180);
         
-        String xml = xstream.toXML(jogador);
+        String xml = xstream.toXML(jogador).toString();
         System.out.println(xml);
+        System.out.println(xml.replace("\n", ""));
         
         System.out.println("\nGera Classes de um XML.");
-        Player newJogador = (Player) xstream.fromXML(xml);
+        Player newJogador = (Player) xstream.fromXML(xml.replace("\n", ""));
         System.out.println("Jogador: "+ newJogador.getNome());
         System.out.println("email: " + newJogador.getEmail());
         System.out.println("altura: "+ newJogador.getAltuta()+ " cm");
