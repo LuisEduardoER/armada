@@ -5,6 +5,9 @@
 package network;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import network.protocolo.Chat;
 import org.xsocket.connection.INonBlockingConnection;
 import org.xsocket.connection.NonBlockingConnection;
 
@@ -16,8 +19,11 @@ public class Cliente {
 
     private static String nome;
     private INonBlockingConnection bc;
+    private Chat chat;
+    private Protocolo protocol = new Protocolo();
 
     public Cliente(String nome) {
+        chat = new Chat(nome);
         this.nome = nome;
         try {
             bc = new NonBlockingConnection("localhost", 8090, new ClientHandler());
@@ -30,16 +36,21 @@ public class Cliente {
     public static String getNome() {
         return nome;
     }
-
-   
-    public void sendDataTo(String destinatario, String message) throws IOException {
-        bc.write(getNome() + "~~" + destinatario + "~~" + message + "\n");
+    
+    public void sendData(String data) throws IOException{
+        bc.write(data+"\n");
     }
-
-   
-    public void sendDataToAll(String message) throws IOException {
-        bc.write(getNome() + "~~" + message + "\n");
+    
+    public void sendMessege(String destinatario, String msn){
+        chat.setDestinatario(destinatario);
+        chat.setMensagem(msn);
+        try {
+            sendData(protocol.chatToXml(chat));
+        } catch (IOException ex) {
+            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
+    
 
     
     public void onClose() throws IOException {
@@ -47,10 +58,9 @@ public class Cliente {
 
             @Override
             public void start() {
-                try {
-                    sendDataToAll("Desconectou-se");
-                } catch (IOException ex) {
-                }
+                
+                    sendMessege("","Desconectou-se");
+                
             }
         };
         t.start();

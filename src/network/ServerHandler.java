@@ -6,22 +6,48 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 //import main.DB;
+import network.protocolo.Chat;
+import network.protocolo.Jogador;
 import org.xsocket.connection.IConnectExceptionHandler;
 import org.xsocket.connection.IConnectHandler;
 import org.xsocket.connection.IDataHandler;
 import org.xsocket.connection.IDisconnectHandler;
 import org.xsocket.connection.INonBlockingConnection;
 
+
 public class ServerHandler implements IDataHandler, IConnectHandler, IDisconnectHandler, IConnectExceptionHandler {
 
     private final List<INonBlockingConnection> connections = Collections.synchronizedList(new ArrayList<INonBlockingConnection>());
-    private ArrayList<String> names = new ArrayList<String>();
+    private ArrayList<String> jogadoresOnline = new ArrayList<String>();
+    private  Protocolo protocolo = new Protocolo();
 
     @Override
     public boolean onData(INonBlockingConnection nbc) throws IOException {
         String message = nbc.readStringByDelimiter("\n");
+        
+        if (message.contains("</ClassChat>")){
+            Chat chat = protocolo.xmlToChat(message);
+            if (!jogadoresOnline.contains(chat.getRemetente())){
+                jogadoresOnline.add(chat.getRemetente());
+            }
+            if (chat.getDestinatario().equals("")){
+                sendMessageTo(protocolo.chatToXml(chat));
+            }
+            String d = "";
+            if(!chat.getDestinatario().equals("")) d = " to " + chat.getDestinatario();
+            if(message.charAt(0) != '#' && (chat.getDestinatario().equals(Servidor.getNome()) || chat.getDestinatario().equals("") ||
+                    chat.getRemetente().equals(Servidor.getNome())))
+                Servidor.displayMessage(chat.getRemetente() + chat.getDestinatario() + ": " + chat.getMensagem());
+        }
+        
+        if (message.contains("</ClassJogador>")){
+            Jogador jogador = protocolo.xmlToJogador(message);
+            if (!jogador.isOnline()){
+                jogadoresOnline.remove(jogador.getNome());
+            }
+        }
 
-        if(message.trim().length() > 0 && message.contains("~~")){
+        /*if(message.trim().length() > 0 && message.contains("~~")){
             String[] m = message.split("~~");
             if(!names.contains(m[0])) {
                 names.add(m[0]);
@@ -32,12 +58,12 @@ public class ServerHandler implements IDataHandler, IConnectHandler, IDisconnect
             } else {
                 sendMessageTo(m[0], m[1], m[2]);                
             }
-        }
+        }*/
 
         return true;
     }
 
-    public void sendMessageTo(final String nome, final String dest, final String message) {
+    public void sendMessageTo(final String xml) {
         try {
             synchronized(connections){
                 Iterator<INonBlockingConnection> iter = connections.iterator();
@@ -50,6 +76,8 @@ public class ServerHandler implements IDataHandler, IConnectHandler, IDisconnect
                             @Override
                             public void start() {
                                 try {
+                                    nbConn.write(xml+"\n");
+                                    /*
                                     if(message.charAt(0) == '#'){
                                         nbConn.write(message + "\n");
                                     } else {
@@ -58,7 +86,7 @@ public class ServerHandler implements IDataHandler, IConnectHandler, IDisconnect
                                             d = dest + "~~";
                                         }
                                         nbConn.write(nome + "~~" + d + message + "\n");
-                                    }
+                                    }*/
                                 } catch(IOException ex){
                                 }
                             }
@@ -67,20 +95,20 @@ public class ServerHandler implements IDataHandler, IConnectHandler, IDisconnect
 
                     }
                 }
-            }
+            }/*
             String d = "";
             if(!dest.equals("")) d = " to " + dest;
             if(message.charAt(0) != '#' && (dest.equals(Servidor.getNome()) || dest.equals("") ||
                     nome.equals(Servidor.getNome())))
-                Servidor.displayMessage(nome + d + ": " + message);
+                Servidor.displayMessage(nome + d + ": " + message);*/
         } catch(Exception ex){
             System.out.println("sendMessageToAll: " + ex.getMessage());
         }
     }
     
-    public void sendMessageToAll(final String nome, final String message) {
+    /*public void sendMessageToAll(final String nome, final String message) {
         sendMessageTo(nome, "", message);
-    }
+    }*/
 
     @Override
     public boolean onConnect(INonBlockingConnection nbc) throws IOException {
@@ -91,7 +119,7 @@ public class ServerHandler implements IDataHandler, IConnectHandler, IDisconnect
 
     @Override
     public boolean onDisconnect(INonBlockingConnection nbc) throws IOException {
-        names.remove(connections.indexOf(nbc));
+        jogadoresOnline.remove(connections.indexOf(nbc));
         connections.remove(nbc);
         updateUsuarios();
         return true;
@@ -100,11 +128,11 @@ public class ServerHandler implements IDataHandler, IConnectHandler, IDisconnect
     private void updateUsuarios(){
         String n1 = "#All~~" + Servidor.getNome();
         String n2 = "#All";
-        for(int i = 0; i < names.size(); i++){
-            n1 += "~~" + names.get(i);
-            n2 += "~~" + names.get(i);
+        for(int i = 0; i < jogadoresOnline.size(); i++){
+            n1 += "~~" + jogadoresOnline.get(i);
+            n2 += "~~" + jogadoresOnline.get(i);
         }
-        sendMessageToAll(Servidor.getNome(), n1);
+        //sendMessageTo(Servidor.getNome(), n1);
         n2 = n2.substring(1);
         String[] users = n2.split("~~");
         

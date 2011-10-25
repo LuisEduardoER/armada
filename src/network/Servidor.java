@@ -5,6 +5,7 @@
 package network;
 
 import java.io.IOException;
+import network.protocolo.Chat;
 import org.xsocket.connection.IServer;
 import org.xsocket.connection.Server;
 
@@ -15,12 +16,14 @@ import org.xsocket.connection.Server;
 public abstract class Servidor {
     
     private static String nome;
-    
+    private static Chat chat;
     private static IServer srv;
     private static ServerHandler handler;
+    private Protocolo protocol = new Protocolo();
 
        
     public static void start(String nome){
+        chat = new Chat(nome);
         try {
             handler = new ServerHandler();
             srv = new Server(8090, handler);
@@ -38,19 +41,27 @@ public abstract class Servidor {
     }
 
     
-    public void sendDataTo(String destinatario, String message) throws IOException {
-        handler.sendMessageTo(getNome(), destinatario, message);
+    public void sendData( String data) throws IOException {
+        
+        handler.sendMessageTo(data);
     }
 
-    
+    /*
     public void sendDataToAll(String message) throws IOException {
-        handler.sendMessageToAll(getNome(), message);
-    }
+        handler.sendMessageToAll(String message);
+    }*/
 
-    
+    public void  sendMessege(String destinatario , String msn) throws IOException{
+        chat.setDestinatario(destinatario);
+        chat.setMensagem(msn);
+        sendData(protocol.chatToXml(chat));
+        
+        
+    }
     public void onClose() throws IOException {
          try {
-            sendDataToAll("Saiu");
+            
+            sendMessege("","Saiu");
             srv.close();
         } catch(IOException ex){
             System.out.println("Erro ao desconecta o servidor.");

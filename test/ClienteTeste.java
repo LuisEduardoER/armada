@@ -22,10 +22,12 @@ public class ClienteTeste {
     public static void main(String[] args) throws IOException {
         // TODO code application logic here
         Cliente c = new Cliente("Dola");
+        
+        
         while (!mm.equals("sair")){
             mm = input.nextLine();
             if (mm.length()>0){
-                c.sendDataToAll(mm);
+                c.sendMessege("",mm);
             } 
         }
         c.onClose();
