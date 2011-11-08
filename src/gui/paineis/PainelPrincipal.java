@@ -22,8 +22,8 @@ import javax.swing.border.EmptyBorder;
  */
 public class PainelPrincipal extends JPanel {
 
-    public static final int JOGADOR = 0;
-    public static final int ADVERSARIO = 1;
+    private static final int LOCAL = 0;
+    private static final int ADVERSARIO = 1;
     
     private JanelaPrincipal pai;
     
@@ -32,8 +32,8 @@ public class PainelPrincipal extends JPanel {
     private JPanel painelMensagens;
     private JPanel painelNomes;
     
-    JScrollPane sp1;
-    JScrollPane sp2;
+    private JScrollPane sp1;
+    private JScrollPane sp2;
     
     private PainelPlacar[] placares;
     private PainelTabuleiro[] tabuleiros;
@@ -41,15 +41,16 @@ public class PainelPrincipal extends JPanel {
     private JLabel[] mensagens;
     private JLabel[] nomes;
     
-    private Jogador jogador1;
-    private Jogador jogador2;
+    private Jogador[] jogadores;
 
-    public PainelPrincipal(JanelaPrincipal pai, Jogador jogador1, Jogador jogador2) {
+    public PainelPrincipal(JanelaPrincipal pai, Jogador jogadorLocal, Jogador jogadorAdversario) {
         this.setLayout(new java.awt.BorderLayout());
         this.pai = pai;
         
-        this.jogador1 = jogador1;
-        this.jogador2 = jogador2;       
+        this.jogadores = new Jogador[2];
+        
+        this.jogadores[LOCAL] = jogadorLocal;
+        this.jogadores[ADVERSARIO] = jogadorAdversario;       
         
         this.construir();
     }
@@ -62,7 +63,6 @@ public class PainelPrincipal extends JPanel {
         this.painelNomes = new JPanel();
 
         sp1 = new JScrollPane();
-        //sp2 = new JScrollPane();
 
         painelPlacares.setLayout(new GridLayout(1, 2, 10, 0));
         this.add(painelPlacares, BorderLayout.NORTH);
@@ -86,42 +86,49 @@ public class PainelPrincipal extends JPanel {
         mensagens = new JLabel[2];
         nomes = new JLabel[2];
 
-        tabuleiros[JOGADOR] = new PainelTabuleiro(pai, jogador1);
-        //tabuleiros[ADVERSARIO] = new PainelTabuleiro(pai, jogador2);
+        tabuleiros[LOCAL] = new PainelTabuleiro(pai, jogadores[LOCAL]);
+        tabuleiros[ADVERSARIO] = new PainelTabuleiro(pai, jogadores[ADVERSARIO]);
 
-        placares[JOGADOR] = new PainelPlacar(pai, jogador1);
-        //placares[ADVERSARIO] = new PainelPlacar(pai, jogador2);
+        placares[LOCAL] = new PainelPlacar(pai, jogadores[LOCAL]);
+        placares[ADVERSARIO] = new PainelPlacar(pai, jogadores[ADVERSARIO]);
 
 
-        for(int i = 0; i < 1; i++){
+        for(int i = 0; i < 2; i++){
             mensagens[i] = new JLabel("Clique no navio para adiciona-lo ao tabuleiro.");
             mensagens[i].setBorder(new EmptyBorder(2, 5, 2, 5));
             mensagens[i].setFont(new Font("Verdana", Font.BOLD, 12));
             mensagens[i].setHorizontalAlignment(SwingConstants.CENTER);
 
-            nomes[i] = new JLabel("Arthur Taborda");
+            nomes[i] = new JLabel(jogadores[i].getNome());
             nomes[i].setBorder(new EmptyBorder(12, 5, 1, 5));
             nomes[i].setFont(new Font("Verdana", Font.BOLD, 18));
             nomes[i].setHorizontalAlignment(SwingConstants.CENTER);
         }
 
-        sp1.getViewport().add(tabuleiros[JOGADOR]);
+        sp1.getViewport().add(tabuleiros[LOCAL]);
         painelTabuleiros.add(sp1);
 
-        //sp2.getViewport().add(tabuleiros[ADVERSARIO]);
-        //painelTabuleiros.add(sp2);
+        painelPlacares.add(placares[LOCAL]);
+        painelMensagens.add(mensagens[LOCAL]);
+        painelNomes.add(nomes[LOCAL]);
 
-        painelPlacares.add(placares[JOGADOR]);
-        //painelPlacares.add(placares[ADVERSARIO]);
-
-        painelMensagens.add(mensagens[JOGADOR]);
-        //painelMensagens.add(mensagens[ADVERSARIO]);
-
-        painelNomes.add(nomes[JOGADOR]);
-        //painelNomes.add(nomes[ADVERSARIO]);
-
-        painelTabuleiros.setPreferredSize(new Dimension(tabuleiros[JOGADOR].getSize().width, tabuleiros[JOGADOR].getSize().height));
+        painelTabuleiros.setPreferredSize(new Dimension(tabuleiros[LOCAL].getSize().width, tabuleiros[LOCAL].getSize().height));
         painelPlacares.setPreferredSize(new Dimension(placares[0].getSize().width, placares[0].getSize().height));
+    }
+    
+    
+    public void ativarModoJogo(){
+        sp2 = new JScrollPane();        
+        sp2.getViewport().add(tabuleiros[ADVERSARIO]);
+        
+        painelTabuleiros.add(sp2);
+        painelPlacares.add(placares[ADVERSARIO]);
+        painelMensagens.add(mensagens[ADVERSARIO]);
+        painelNomes.add(nomes[ADVERSARIO]);
+        
+        placares[LOCAL].atualizar();
+        
+        this.updateUI();
     }
     
 
@@ -182,7 +189,7 @@ public class PainelPrincipal extends JPanel {
     }
 
     public PainelTabuleiro getTabuleiroJogador() {
-        return tabuleiros[JOGADOR];
+        return tabuleiros[LOCAL];
     }
 
     public PainelTabuleiro getTabuleiroAdversario() {
@@ -190,7 +197,7 @@ public class PainelPrincipal extends JPanel {
     }
 
     public PainelPlacar getPlacarJogador() {
-        return placares[JOGADOR];
+        return placares[LOCAL];
     }
 
     public PainelPlacar getPlacarAdversario() {
@@ -198,7 +205,7 @@ public class PainelPrincipal extends JPanel {
     }
 
     public String getMensagemJogador() {
-        return mensagens[JOGADOR].getText();
+        return mensagens[LOCAL].getText();
     }
 
     public String getMensagemAdversario() {

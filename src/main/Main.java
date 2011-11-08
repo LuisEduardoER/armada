@@ -18,7 +18,4 @@ public class Main {
     public static void main(String[] args) {
         jogo = new Jogo();
     }
-    
-    public static void mostrarJanelaPrincipal(){
-    }
 }

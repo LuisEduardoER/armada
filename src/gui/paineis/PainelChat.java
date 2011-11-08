@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import main.Main;
 
 /**
  *
@@ -44,7 +45,8 @@ public class PainelChat extends JPanel {
             @Override
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 if(evt.getKeyCode() == KeyEvent.VK_ENTER)
-                    enviouMensagem();
+                    if(!campoMensagem.getText().equals(""))
+                        enviouMensagem();
             }
         });
 
@@ -73,6 +75,10 @@ public class PainelChat extends JPanel {
         this.campoMensagem.setText("");
         
         this.ultimoEnviador = jogador1;
+        
+        //Atenção. Isso é um teste. Eu sei que isso não deve ficar aqui, e não irá ficar.
+        Main.jogo.preparar(jogador2);
+        //Main.jogo.getJanelaPrincipal().jogar();
     }
     
 

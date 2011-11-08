@@ -14,6 +14,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
+import main.Jogo;
 
 /**
  *
@@ -66,11 +67,19 @@ public class BotaoPlacar extends JButton {
     }
     
     public void atualizar(){
-        int qtde = this.getQtdeNaviosSemPosicao();
+        int qtde;
+        if(Jogo.modoPreparacao)
+            qtde = this.getQtdeNaviosSemPosicao();
+        else
+            qtde = this.getQtdeNaviosVivos();
+        
         if(qtde == 0){
             this.qtdeNavios.setForeground(Color.red);
+        } else {
+            this.qtdeNavios.setForeground(Color.blue);
         }
-        this.qtdeNavios.setText(String.valueOf(this.getQtdeNaviosSemPosicao()));
+        
+        this.qtdeNavios.setText(String.valueOf(qtde));
     }
     
     public Navio getNavioSemPosicao(){
@@ -87,6 +96,18 @@ public class BotaoPlacar extends JButton {
         int cont = 0;
         for(int i = 0; i < navios.size(); i++){
             if(this.navios.get(i).getPos() == null){
+                cont++;
+            }
+        }
+        
+        return cont;
+    }
+    
+    
+    public int getQtdeNaviosVivos(){
+        int cont = 0;
+        for(int i = 0; i < navios.size(); i++){
+            if(this.navios.get(i).isVivo()){
                 cont++;
             }
         }

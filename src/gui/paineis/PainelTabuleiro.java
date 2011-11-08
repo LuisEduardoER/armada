@@ -4,6 +4,7 @@ import gui.janelas.JanelaPrincipal;
 import classes.Jogador;
 import classes.Navio;
 import classes.Orientacao;
+import classes.TipoJogador;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -13,6 +14,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import main.Jogo;
+import main.Main;
 
 /**
  *
@@ -27,9 +30,7 @@ public class PainelTabuleiro extends JPanel {
     private int tamanho;
     private int tamanhoBotao = 33;
     private boolean habilitado;
-    
     private int[] posicaoMouseOver;
-    
     //----------CONSTANTES------------
     private final ImageIcon iconeVazio = new ImageIcon();
     private final Color corPadrao = new JButton().getBackground();
@@ -112,20 +113,51 @@ public class PainelTabuleiro extends JPanel {
 
                     @Override
                     public void mouseEntered(java.awt.event.MouseEvent evt) {
-                        JButton botao = (JButton) evt.getComponent();
-                        posicaoMouseOver = getPosicao(botao);
-                        mouseOver();
+                        if(Jogo.modoPreparacao){
+                            JButton botao = (JButton) evt.getComponent();
+                            posicaoMouseOver = getPosicao(botao);
+                            mouseOver();
+                        }
                     }
 
                     @Override
                     public void mouseClicked(java.awt.event.MouseEvent evt) {
-                        JButton botao = (JButton) evt.getComponent();
-                        posicaoMouseOver = getPosicao(botao);
-                        ArrayList<Integer[]> coords = getCoordenadasNavioSelecionado(posicaoMouseOver);
-                        if(coordenadasEstaoLivres(coords)){
-                            selecionarPosicao(posicaoMouseOver);
+                        if(Jogo.modoPreparacao){
+                            JButton botao = (JButton) evt.getComponent();
+                            posicaoMouseOver = getPosicao(botao);
+                            ArrayList<Integer[]> coords = getCoordenadasNavioSelecionado(posicaoMouseOver);
+
+                            if(coordenadasEstaoLivres(coords)){
+                                int[] pos = posicaoMouseOver;
+                                if(!coords.isEmpty()) {
+                                    pos = new int[]{coords.get(0)[0], coords.get(0)[1]};
+                                }
+
+                                pai.selecionarPosicao(pos);
+                            } else {
+                                mouseOver(posicaoMouseOver);
+                            }
                         } else {
-                            mouseOver(posicaoMouseOver);
+                            /* Saca só... Isso pode ser dificil de entender... Mas como eu sou legal vou explicar
+                             * bem direitinho. Se liga:
+                             * 
+                             * Se o jogador começa jogando, ele joga só nos turnos impares.
+                             * Mas se ele nao começa jogando, ele joga só nos turnos pares.
+                             * Então, pra ele poder atacar esse tabuleiro no modo de jogo, é necessario:
+                             * - Ser o tabuleiro do jogador adversario.
+                             * - Estar na vez dele de atacar.
+                             * 
+                             * Sim, eu sei que isso pode parecer meio óbvio, mas vai saber quem está lendo
+                             * isso aqui né...
+                             */
+                            if(jogador.getTipo() == TipoJogador.ADVERSARIO && 
+                                    ((Jogo.turno % 2 == 1 && jogador.comecaJogando()) ||
+                                    (Jogo.turno % 2 == 0 && !jogador.comecaJogando()))){
+                                
+                                JButton botao = (JButton) evt.getComponent();
+                                posicaoMouseOver = getPosicao(botao);
+                                Main.jogo.atacar(TipoJogador.ADVERSARIO, posicaoMouseOver);
+                            }
                         }
                     }
                 });
@@ -137,43 +169,41 @@ public class PainelTabuleiro extends JPanel {
         }
     }
     
-    
-    private ArrayList<Navio> getNaviosPosicionados(){
+
+    private ArrayList<Navio> getNaviosPosicionados() {
         ArrayList<Navio> navios = new ArrayList<Navio>();
-        
-        for(int i = 0; i < this.jogador.getNavios().length; i++){
-            Navio navio = this.jogador.getNavios()[i];
-            
-            if(navio.getPos() != null) {
+
+        for(int i = 0; i < this.jogador.getTabuleiro().getNavios().length; i++){
+            Navio navio = this.jogador.getTabuleiro().getNavios()[i];
+
+            if(navio.getPos() != null){
                 navios.add(navio);
             }
         }
-        
+
         return navios;
     }
-    
-    
-    public int getQtdeNaviosSemPosicao(){
+
+    public int getQtdeNaviosSemPosicao() {
         int qtde = 0;
-        
-        for(int i = 0; i < this.jogador.getNavios().length; i++){
-            Navio navio = this.jogador.getNavios()[i];            
-            if(navio.getPos() == null) {
+
+        for(int i = 0; i < this.jogador.getTabuleiro().getNavios().length; i++){
+            Navio navio = this.jogador.getTabuleiro().getNavios()[i];
+            if(navio.getPos() == null){
                 qtde++;
             }
         }
-        
+
         return qtde;
     }
-    
 
     /**
      * 
      */
     public void atualizarPosicaoNavios() {
         ImageIcon img = null;
-        this.limparGrid(true);        
-        
+        this.limparGrid(true);
+
         ArrayList<Navio> navios = this.getNaviosPosicionados();
         for(int i = 0; i < navios.size(); i++){
             Navio navio = navios.get(i);
@@ -202,7 +232,7 @@ public class PainelTabuleiro extends JPanel {
         for(int i = 0; i < tamanho; i++){
             for(int j = 0; j < tamanho; j++){
                 this.grid[i][j].setBackground(this.corPadrao);
-                if(limparNavios) {
+                if(limparNavios){
                     this.grid[i][j].setIcon(this.iconeVazio);
                 }
             }
@@ -220,14 +250,12 @@ public class PainelTabuleiro extends JPanel {
 
         return new int[]{0, 0};
     }
-
-    private void selecionarPosicao(int[] pos) {
-        pai.selecionarPosicao(pos);
-    }
     
+
     private ArrayList<Integer[]> getCoordenadasNavioSelecionado(int[] pos) {
         return this.getCoordenadasNavio(pos, this.pai.getNavioSelecionado());
     }
+    
 
     private ArrayList<Integer[]> getCoordenadasNavio(int[] pos, Navio navio) {
         ArrayList<Integer[]> lista = new ArrayList<Integer[]>();
@@ -237,10 +265,8 @@ public class PainelTabuleiro extends JPanel {
             int x = pos[0];
             int y = pos[1];
             if(navio.getOrientacao() == Orientacao.HORIZONTAL && x + navio.getTamanho() > tamanho){
-                System.out.print(x + "   " + (tamanho - x));
                 x = tamanho - navio.getTamanho();
             } else if(navio.getOrientacao() == Orientacao.VERTICAL && y + navio.getTamanho() > tamanho){
-                System.out.print(y + "   " + (tamanho - y));
                 y = tamanho - navio.getTamanho();
             }
 
@@ -256,8 +282,8 @@ public class PainelTabuleiro extends JPanel {
 
         return lista;
     }
-    
-    private boolean coordenadasSeCruzam(ArrayList<Integer[]> lista1, ArrayList<Integer[]> lista2){
+
+    private boolean coordenadasSeCruzam(ArrayList<Integer[]> lista1, ArrayList<Integer[]> lista2) {
         for(int i = 0; i < lista1.size(); i++){
             for(int j = 0; j < lista2.size(); j++){
                 if(lista1.get(i)[0] == lista2.get(j)[0] && lista1.get(i)[1] == lista2.get(j)[1]){
@@ -265,31 +291,29 @@ public class PainelTabuleiro extends JPanel {
                 }
             }
         }
-        
+
         return false;
     }
-    
-    
-    private boolean coordenadasEstaoLivres(ArrayList<Integer[]> coordenadas){
+
+    private boolean coordenadasEstaoLivres(ArrayList<Integer[]> coordenadas) {
         ArrayList<Integer[]> lista = coordenadas;
         ArrayList<Navio> navios = this.getNaviosPosicionados();
-        
+
         for(int i = 0; i < navios.size(); i++){
             Navio navio = navios.get(i);
-            
+
             if(this.coordenadasSeCruzam(lista, navio.getCoordenadas())){
                 return false;
             }
         }
-        
+
         return true;
     }
-    
 
-    public void mouseOver(int[] pos) {        
+    public void mouseOver(int[] pos) {
         ArrayList<Integer[]> coords = this.getCoordenadasNavio(pos, pai.getNavioSelecionado());
-        
-        Color cor = this.corSelecao;        
+
+        Color cor = this.corSelecao;
         if(!this.coordenadasEstaoLivres(coords)){
             cor = this.corSelecaoErro;
         }
@@ -298,17 +322,15 @@ public class PainelTabuleiro extends JPanel {
             this.grid[coords.get(i)[0]][coords.get(i)[1]].setBackground(cor);
         }
     }
-    
-    
+
     public void mouseOver() {
         this.mouseOver(posicaoMouseOver);
     }
-    
-    
-    public Navio getNavio(int pos[]){
+
+    public Navio getNavio(int pos[]) {
         Navio navio = null;
         ArrayList<Navio> navios = this.getNaviosPosicionados();
-        
+
         for(int i = 0; i < navios.size(); i++){
             ArrayList<Integer[]> coords = this.getCoordenadasNavio(navios.get(i).getPos(), navios.get(i));
             for(int j = 0; j < coords.size(); j++){
@@ -320,7 +342,7 @@ public class PainelTabuleiro extends JPanel {
                 }
             }
         }
-        
+
         return navio;
     }
 }
