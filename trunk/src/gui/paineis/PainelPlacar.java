@@ -44,28 +44,28 @@ public class PainelPlacar extends JPanel {
 
         boolean repetido;
         int k = 0;
-        for(int i = 0; i < jogador.getNavios().length; i++){
+        for(int i = 0; i < jogador.getTabuleiro().getNavios().length; i++){
             repetido = false;
             for(int j = 0; j < this.navios.size(); j++){
                 //se os nomes forem iguais e nao tiver entrado alguma vez na condição.
-                if(!repetido && this.navios.get(j).getNome().equals(jogador.getNavios()[i].getNome())){
+                if(!repetido && this.navios.get(j).getNome().equals(jogador.getTabuleiro().getNavios()[i].getNome())){
                     repetido = true;
                 }
             }
 
             if(!repetido){
-                this.navios.add(jogador.getNavios()[i]);
+                this.navios.add(jogador.getTabuleiro().getNavios()[i]);
             } else {
                 k++;
                 for(int j = 0; j < this.botoesNavios.size(); j++){
-                    if(this.botoesNavios.get(j).getNavio(0).getNome().equals(jogador.getNavios()[i].getNome())){
-                        this.botoesNavios.get(j).adicionarNavio(jogador.getNavios()[i]);
+                    if(this.botoesNavios.get(j).getNavio(0).getNome().equals(jogador.getTabuleiro().getNavios()[i].getNome())){
+                        this.botoesNavios.get(j).adicionarNavio(jogador.getTabuleiro().getNavios()[i]);
                     }
                 }
                 continue;
             }
 
-            BotaoPlacar botao = new BotaoPlacar(jogador.getNavios()[i]);
+            BotaoPlacar botao = new BotaoPlacar(jogador.getTabuleiro().getNavios()[i]);
             botao.addMouseListener(new java.awt.event.MouseAdapter() {
                 @Override
                 public void mouseClicked(java.awt.event.MouseEvent evt) {

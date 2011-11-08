@@ -45,9 +45,8 @@ public class JanelaPrincipal extends JFrame implements KeyListener {
         this.jogador2 = jogador2;
 
         this.construirPaineis();
-        this.escolherPosicoesNavios();
 
-        this.setarTamanho();
+        this.setarTamanho(1);
 
         this.pack();
     }
@@ -66,12 +65,17 @@ public class JanelaPrincipal extends JFrame implements KeyListener {
         this.painelSeparacao.setRightComponent(painelPrincipal);
     }
 
-    private void setarTamanho() {
+    private void setarTamanho(int qtdeJogadores) {
         PainelTabuleiro tabuleiroJogador = painelPrincipal.getTabuleiroJogador();
         PainelPlacar placarJogador = painelPrincipal.getPlacarJogador();
+        
+        if(qtdeJogadores == 1)
+            this.largura = 50;
+        else this.largura = -60;
+        this.altura = 0;
 
-        this.largura += this.painelLateral.getPainelChat().getPreferredSize().width + 30;
-        this.largura += tabuleiroJogador.getPreferredSize().width + 20;
+        this.largura += (this.painelLateral.getPainelChat().getPreferredSize().width) * qtdeJogadores;
+        this.largura += (tabuleiroJogador.getPreferredSize().width) * qtdeJogadores;
 
         this.altura += tabuleiroJogador.getPreferredSize().height + 90;
         this.altura += placarJogador.getPreferredSize().height;
@@ -80,16 +84,23 @@ public class JanelaPrincipal extends JFrame implements KeyListener {
         System.out.println(largura);
 
         this.setPreferredSize(new java.awt.Dimension(largura, altura));
+        this.setSize(new java.awt.Dimension(largura, altura));
     }
-
-    private void escolherPosicoesNavios() {
-    }
+    
 
     public void selecionarNavio(Navio navio) {
         this.navioSelecionado = navio;
         this.requestFocus();
     }
+    
+    
+    public void jogar(){
+        this.painelPrincipal.ativarModoJogo();
+        this.setarTamanho(2);
+        this.painelLateral.getPainelInfo().ativarModoJogo();
+    }
 
+    
     public void selecionarPosicao(int[] pos) {
         PainelTabuleiro tabuleiroJogador = painelPrincipal.getTabuleiroJogador();
         PainelPlacar[] placares = painelPrincipal.getPlacares();
@@ -136,6 +147,10 @@ public class JanelaPrincipal extends JFrame implements KeyListener {
 
             painelPrincipal.getTabuleiroJogador().mouseOver();
         }
+    }
+    
+    public void prepararAdversario(){
+        this.painelLateral.getPainelInfo().getLabelAdversarioPreparado().setVisible(true);
     }
 
     @Override

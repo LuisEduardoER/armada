@@ -3,12 +3,18 @@ package classes;
 public class Jogador {
 
     private String nome;
-    private Navio[] navios;
     private Tabuleiro tabuleiro;
+    
+    private TipoJogador tipo;
+    
+    private boolean preparado;
+    private boolean comecaJogando;
+    
 
-    public Jogador() {
+    public Jogador(TipoJogador tipo) {
         this.nome = "Zé";
-        this.navios = new Navio[] {
+        
+        Navio[] navios = new Navio[] {
             new PortaAvioes(), 
             new Destroyer(),
             new Destroyer(),
@@ -19,23 +25,17 @@ public class Jogador {
             new Cruzador()
     };
         
-        this.tabuleiro = new Tabuleiro(13);
+        this.tabuleiro = new Tabuleiro(13, navios);
+        this.tipo = tipo;
     }
 
         
-    public Jogador(String nome, Navio[] navios, Tabuleiro tabuleiro) {
+    public Jogador(String nome, Navio[] navios, Tabuleiro tabuleiro, TipoJogador tipo) {
         this.nome = nome;
-        this.navios = navios;
         this.tabuleiro = tabuleiro;
-    }
-    
-
-    public Navio[] getNavios() {
-        return navios;
-    }
-
-    public void setNavios(Navio[] navios) {
-        this.navios = navios;
+        this.tipo = tipo;
+        this.preparado = false;
+        this.comecaJogando = false;
     }
 
 
@@ -54,5 +54,29 @@ public class Jogador {
 
     public void setTabuleiro(Tabuleiro tabuleiro) {
         this.tabuleiro = tabuleiro;
+    }
+
+    public boolean isPreparado() {
+        return preparado;
+    }
+
+    public void setPreparado(boolean preparado) {
+        this.preparado = preparado;
+    }
+
+    public boolean comecaJogando() {
+        return comecaJogando;
+    }
+
+    public void setComecaJogando(boolean comecaJogando) {
+        this.comecaJogando = comecaJogando;
+    }
+
+    public TipoJogador getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(TipoJogador tipo) {
+        this.tipo = tipo;
     }
 }
