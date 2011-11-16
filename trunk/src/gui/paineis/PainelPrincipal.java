@@ -7,6 +7,7 @@ package gui.paineis;
 import classes.Jogador;
 import gui.janelas.JanelaPrincipal;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -15,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import main.Jogo;
 
 /**
  *
@@ -117,6 +119,30 @@ public class PainelPrincipal extends JPanel {
     }
     
     
+    public void atualizarNomeTurno(){
+        
+        String ini = "";
+        String fin = "";
+        Color cor = Color.black;
+        
+        for(int i = 0; i < 2; i++){            
+            if((Jogo.turno % 2 == 1 && jogadores[i].comecaJogando()) ||
+               (Jogo.turno % 2 == 0 && !jogadores[i].comecaJogando())){
+                cor = Color.RED;
+                ini = ">>>>";
+                fin = "<<<<";
+            } else {
+                cor = Color.black;
+                ini = "";
+                fin = "";
+            }
+            
+            nomes[i].setForeground(cor);
+            nomes[i].setText(ini + jogadores[i].getNome() + fin);
+        }
+    }
+    
+    
     public void ativarModoJogo(){
         sp2 = new JScrollPane();        
         sp2.getViewport().add(tabuleiros[ADVERSARIO]);
@@ -127,6 +153,9 @@ public class PainelPrincipal extends JPanel {
         painelNomes.add(nomes[ADVERSARIO]);
         
         placares[LOCAL].atualizar();
+        placares[ADVERSARIO].atualizar();
+        
+        //tabuleiros[ADVERSARIO].atualizarPosicaoNavios();
         
         this.updateUI();
     }

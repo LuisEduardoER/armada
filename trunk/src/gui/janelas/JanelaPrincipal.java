@@ -3,6 +3,7 @@ package gui.janelas;
 import classes.Jogador;
 import classes.Navio;
 import classes.Orientacao;
+import classes.TipoJogador;
 import gui.paineis.PainelLateral;
 import gui.paineis.PainelPlacar;
 import gui.paineis.PainelPrincipal;
@@ -24,8 +25,8 @@ public class JanelaPrincipal extends JFrame implements KeyListener {
     private PainelLateral painelLateral;
     private JSplitPane painelSeparacao;
     //---------JOGADORES-----------
-    private Jogador jogador1;
-    private Jogador jogador2;
+    private Jogador jogadorLocal;
+    private Jogador jogadorAdversario;
     //--------TAMANHO-----------
     private int largura;
     private int altura;
@@ -41,8 +42,8 @@ public class JanelaPrincipal extends JFrame implements KeyListener {
 
         this.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        this.jogador1 = jogador1;
-        this.jogador2 = jogador2;
+        this.jogadorLocal = jogador1;
+        this.jogadorAdversario = jogador2;
 
         this.construirPaineis();
 
@@ -56,12 +57,12 @@ public class JanelaPrincipal extends JFrame implements KeyListener {
         this.painelSeparacao.setDividerLocation(180);
         this.painelSeparacao.setDividerSize(2);
 
-        this.painelLateral = new PainelLateral(this.jogador1, this.jogador2);
+        this.painelLateral = new PainelLateral(this.jogadorLocal, this.jogadorAdversario);
         this.painelSeparacao.setLeftComponent(painelLateral);
 
         this.add(painelSeparacao, BorderLayout.CENTER);
 
-        this.painelPrincipal = new PainelPrincipal(this, this.jogador1, this.jogador2);
+        this.painelPrincipal = new PainelPrincipal(this, this.jogadorLocal, this.jogadorAdversario);
         this.painelSeparacao.setRightComponent(painelPrincipal);
     }
 
@@ -130,6 +131,7 @@ public class JanelaPrincipal extends JFrame implements KeyListener {
 
         this.requestFocus();
     }
+    
 
     @Override
     public void keyTyped(KeyEvent e) {
@@ -168,5 +170,17 @@ public class JanelaPrincipal extends JFrame implements KeyListener {
 
     public Navio getNavioSelecionado() {
         return navioSelecionado;
+    }
+
+    public PainelLateral getPainelLateral() {
+        return painelLateral;
+    }
+
+    public PainelPrincipal getPainelPrincipal() {
+        return painelPrincipal;
+    }
+
+    public JSplitPane getPainelSeparacao() {
+        return painelSeparacao;
     }
 }

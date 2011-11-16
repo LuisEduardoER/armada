@@ -1,5 +1,7 @@
 package classes;
 
+import java.util.ArrayList;
+
 public class Jogador {
 
     private String nome;
@@ -7,12 +9,34 @@ public class Jogador {
     
     private TipoJogador tipo;
     
+    private ArrayList<Integer[]> tiros;
+    
     private boolean preparado;
     private boolean comecaJogando;
     
+    
+    public Jogador(){
+        this.nome = "Luciano";
+        
+        Navio[] navios = new Navio[] {
+            new PortaAvioes(new int[]{1,1}), 
+            new Destroyer(new int[]{2,2}),
+            new Destroyer(new int[]{3,3}),
+            new Couracado(new int[]{4,4}),
+            new Couracado(new int[]{5,5}),
+            new Cruzador(new int[]{6,6}),
+            new Cruzador(new int[]{7,7}),
+            new Cruzador(new int[]{8,8})
+        };
+        
+        this.tabuleiro = new Tabuleiro(13, navios);
+        this.tipo = TipoJogador.ADVERSARIO;
+        this.tiros = new ArrayList();
+    }
+    
 
     public Jogador(TipoJogador tipo) {
-        this.nome = "Zé";
+        this.nome = "Zezé di Camargo";
         
         Navio[] navios = new Navio[] {
             new PortaAvioes(), 
@@ -23,10 +47,11 @@ public class Jogador {
             new Cruzador(),
             new Cruzador(),
             new Cruzador()
-    };
+        };
         
         this.tabuleiro = new Tabuleiro(13, navios);
         this.tipo = tipo;
+        this.tiros = new ArrayList();
     }
 
         
@@ -34,6 +59,7 @@ public class Jogador {
         this.nome = nome;
         this.tabuleiro = tabuleiro;
         this.tipo = tipo;
+        this.tiros = new ArrayList();
         this.preparado = false;
         this.comecaJogando = false;
     }
@@ -78,5 +104,13 @@ public class Jogador {
 
     public void setTipo(TipoJogador tipo) {
         this.tipo = tipo;
+    }
+
+    public ArrayList<Integer[]> getTiros() {
+        return tiros;
+    }
+
+    public void setTiros(ArrayList<Integer[]> tiros) {
+        this.tiros = tiros;
     }
 }

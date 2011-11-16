@@ -3,9 +3,15 @@ package classes;
 public class Destroyer extends Navio {
     
     public Destroyer() {
-        this.setNome("Destroyer");
-        this.setTamanho(4);
-        this.setCaminhoImagens("/images/ships/destroyer/");
+        super();
+        this.nome = "Destroyer";
+        this.tamanho = 4;
+        this.caminhoImagens = "/images/ships/destroyer/";
+    }
+    
+    public Destroyer(int[] pos){
+        this();
+        this.pos = pos;
     }
 }
  

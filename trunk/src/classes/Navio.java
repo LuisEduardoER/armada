@@ -20,12 +20,19 @@ public abstract class Navio {
         this.orientacao = Orientacao.HORIZONTAL;
         this.vivo= true;
     }
+    
+    
+    public Navio(int[] pos){
+        this.pos = pos;
+    }
+    
 
     public Navio(String nome, int tamanho, String caminhoImagens) {
         this.nome = nome;
         this.tamanho = tamanho;
         this.caminhoImagens = caminhoImagens;
     }
+    
 
     public Navio(int[] pos, int tamanho, String caminhoImagens, Orientacao orientacao, boolean vivo) {
         this.pos = pos;

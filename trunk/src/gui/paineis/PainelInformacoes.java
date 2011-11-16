@@ -5,7 +5,6 @@
 package gui.paineis;
 
 import classes.Jogador;
-import classes.TipoJogador;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -16,7 +15,6 @@ import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -28,6 +26,8 @@ import main.Main;
  * @author arthur
  */
 public class PainelInformacoes extends JPanel{
+    
+    private static final int TEMPO_TURNO = 30;
     
     private JLabel labelTimer;
     private JLabel labelAdversarioPreparado;
@@ -47,6 +47,19 @@ public class PainelInformacoes extends JPanel{
         
         this.ativarModoPreparo();
         //this.ativarModoJogo();
+    }
+    
+    
+    public void reiniciar(){
+        this.tempo = TEMPO_TURNO + 1;
+        this.botaoAtirar.setEnabled(false);
+        
+        Jogador jog = Main.jogo.getJogador(true);
+        for(int i = jog.getTabuleiro().getNavios().length; i < tiros.size(); i++){
+            tiros.remove(i);
+        }
+        
+        this.atualizarContagemTiros();
     }
     
     
@@ -107,11 +120,18 @@ public class PainelInformacoes extends JPanel{
                 y++;
             } else {
                 x++;
-            }     
+            }
         }
 
         botaoAtirar = new JButton("Atirar");
         botaoAtirar.setEnabled(false);
+        botaoAtirar.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Main.jogo.atirar();
+            }
+        });
+        
         gbc.gridx = 0;
         gbc.gridy = y + 1;
         gbc.gridwidth = this.jogador.getTabuleiro().getNavios().length;
@@ -119,14 +139,14 @@ public class PainelInformacoes extends JPanel{
         gbc.insets = new java.awt.Insets(0, 5, 5, 5);
         this.add(botaoAtirar, gbc);
         
-        this.iniciarTimer(45);
+        this.iniciarTimer();
     }
     
     private void atualizaTimer(int t){
         if(t <= 0){
             labelTimer.setText("00:00");
-            //passarTurno();
-            this.tempo = 46;
+            Main.jogo.trocarTurno();
+            this.tempo = TEMPO_TURNO + 1;
         } else if(t < 10) {
             labelTimer.setText("00:0" + (t++));
         } else if(t >= 10 && t < 60) {
@@ -142,7 +162,7 @@ public class PainelInformacoes extends JPanel{
         }
     }
     
-    private void iniciarTimer(int tempoInicial) {
+    private void iniciarTimer() {
         ActionListener action = new ActionListener() {
 
             @Override
@@ -152,7 +172,7 @@ public class PainelInformacoes extends JPanel{
             }
         };
         
-        tempo = tempoInicial;
+        tempo = TEMPO_TURNO;
         
         labelTimer.setVisible(true);
         atualizaTimer(tempo);
@@ -160,6 +180,27 @@ public class PainelInformacoes extends JPanel{
         timer = new Timer(1000, action);
         timer.start();
     }
+    
+    
+    public void atualizarContagemTiros(){
+        Jogador jog = Main.jogo.getJogador(true);
+        
+        //setar tudo como selecionado
+        for(int i = 0; i < tiros.size(); i++){
+            tiros.get(i).setSelected(true);
+        } 
+        //e depois deseleciona o necessario.
+        for(int i = tiros.size() - jog.getTiros().size(); i < tiros.size(); i++){
+            tiros.get(i).setSelected(false);
+        }
+        
+        if(tiros.size() == jog.getTiros().size()){
+            this.botaoAtirar.setEnabled(true);
+        } else {
+            this.botaoAtirar.setEnabled(false);
+        }
+    }
+    
 
     public JButton getBotaoAtirar() {
         return botaoAtirar;
@@ -180,12 +221,12 @@ public class PainelInformacoes extends JPanel{
     public JLabel getLabelAdversarioPreparado() {
         return labelAdversarioPreparado;
     }
-    
-    
-    public static void main(String[] args){
-        JFrame frame = new JFrame();
-        frame.add(new PainelInformacoes(new Jogador(TipoJogador.LOCAL)));        
-        frame.setSize(new Dimension(200,200));
-        frame.setVisible(true);
+
+    public Jogador getJogador() {
+        return jogador;
+    }
+
+    public void setJogador(Jogador jogador) {
+        this.jogador = jogador;
     }
 }

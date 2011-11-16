@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -112,7 +113,7 @@ public class PainelTabuleiro extends JPanel {
                 this.grid[i][j].addMouseListener(new java.awt.event.MouseAdapter() {
 
                     @Override
-                    public void mouseEntered(java.awt.event.MouseEvent evt) {
+                    public void mouseEntered(MouseEvent evt) {
                         if(Jogo.modoPreparacao){
                             JButton botao = (JButton) evt.getComponent();
                             posicaoMouseOver = getPosicao(botao);
@@ -121,7 +122,7 @@ public class PainelTabuleiro extends JPanel {
                     }
 
                     @Override
-                    public void mouseClicked(java.awt.event.MouseEvent evt) {
+                    public void mousePressed(MouseEvent evt) {
                         if(Jogo.modoPreparacao){
                             JButton botao = (JButton) evt.getComponent();
                             posicaoMouseOver = getPosicao(botao);
@@ -129,7 +130,7 @@ public class PainelTabuleiro extends JPanel {
 
                             if(coordenadasEstaoLivres(coords)){
                                 int[] pos = posicaoMouseOver;
-                                if(!coords.isEmpty()) {
+                                if(!coords.isEmpty()){
                                     pos = new int[]{coords.get(0)[0], coords.get(0)[1]};
                                 }
 
@@ -143,20 +144,28 @@ public class PainelTabuleiro extends JPanel {
                              * 
                              * Se o jogador começa jogando, ele joga só nos turnos impares.
                              * Mas se ele nao começa jogando, ele joga só nos turnos pares.
-                             * Então, pra ele poder atacar esse tabuleiro no modo de jogo, é necessario:
-                             * - Ser o tabuleiro do jogador adversario.
-                             * - Estar na vez dele de atacar.
+                             * Então, pra ele poder adicionar um ataque nesse tabuleiro no modo de jogo, é necessario:
+                             * - Ser o tabuleiro do jogador adversario. (primeira condicao)
+                             * - Estar na vez dele de adicionarAtaque.  (segunda condicao)
                              * 
                              * Sim, eu sei que isso pode parecer meio óbvio, mas vai saber quem está lendo
                              * isso aqui né...
                              */
-                            if(jogador.getTipo() == TipoJogador.ADVERSARIO && 
-                                    ((Jogo.turno % 2 == 1 && jogador.comecaJogando()) ||
-                                    (Jogo.turno % 2 == 0 && !jogador.comecaJogando()))){
-                                
+                            boolean turnoPar = Jogo.turno % 2 == 0;
+
+                            if(jogador.getTipo() == TipoJogador.ADVERSARIO
+                                    && ((turnoPar && jogador.comecaJogando()) || (!turnoPar && !jogador.comecaJogando()))){
+
                                 JButton botao = (JButton) evt.getComponent();
-                                posicaoMouseOver = getPosicao(botao);
-                                Main.jogo.atacar(TipoJogador.ADVERSARIO, posicaoMouseOver);
+                                int[] pos = getPosicao(botao);
+                                
+                                if(jogador.getTabuleiro().getCasas()[pos[0]][pos[1]].atingido) return;
+
+                                if(Main.jogo.adicionarAtaque(pos)){
+                                    botao.setBackground(Color.RED);
+                                } else {
+                                    botao.setBackground(corPadrao);
+                                }
                             }
                         }
                     }
@@ -168,7 +177,54 @@ public class PainelTabuleiro extends JPanel {
             }
         }
     }
-    
+
+    public void atirar() {
+        ArrayList<Integer[]> tiros = Main.jogo.getJogador(true).getTiros();
+
+        if(jogador.getTipo() == TipoJogador.ADVERSARIO){
+            for(Integer[] pos : tiros){
+                JButton botao = this.grid[pos[0]][pos[1]];
+                int[] p = new int[]{pos[0], pos[1]};
+                
+                ImageIcon imagem = getImagem(p);
+                if(imagem != null){
+                    botao.setIcon(imagem);
+                    botao.setBackground(corPadrao);
+                } else {
+                    botao.setBackground(corSelecao);
+                }
+            }
+        }
+    }
+
+    public ImageIcon getImagem(int[] pos) {
+        ArrayList<Navio> navios = this.getNaviosPosicionados();
+        for(int i = 0; i < navios.size(); i++){
+            Navio navio = navios.get(i);
+
+            String ori;
+            if(navio.getOrientacao() == Orientacao.VERTICAL){
+                ori = "v";
+            } else {
+                ori = "h";
+            }
+            int x = navio.getPos()[0];
+            int y = navio.getPos()[1];
+            for(int j = 1; j <= navio.getTamanho(); j++){
+                if(pos[0] == x && pos[1] == y){
+                    return new ImageIcon(getClass().getResource(navio.getCaminhoImagens() + ori + j + ".png"));
+                }
+
+                if(navio.getOrientacao() == Orientacao.VERTICAL){
+                    y++;
+                } else {
+                    x++;
+                }
+            }
+        }
+
+        return null;
+    }
 
     private ArrayList<Navio> getNaviosPosicionados() {
         ArrayList<Navio> navios = new ArrayList<Navio>();
@@ -205,9 +261,7 @@ public class PainelTabuleiro extends JPanel {
         this.limparGrid(true);
 
         ArrayList<Navio> navios = this.getNaviosPosicionados();
-        for(int i = 0; i < navios.size(); i++){
-            Navio navio = navios.get(i);
-
+        for(Navio navio : navios){
             int x = navio.getPos()[0];
             int y = navio.getPos()[1];
             for(int j = 1; j <= navio.getTamanho(); j++){
@@ -228,12 +282,14 @@ public class PainelTabuleiro extends JPanel {
         }
     }
 
-    private void limparGrid(boolean limparNavios) {
+    public void limparGrid(boolean limparNavios) {
         for(int i = 0; i < tamanho; i++){
             for(int j = 0; j < tamanho; j++){
-                this.grid[i][j].setBackground(this.corPadrao);
-                if(limparNavios){
-                    this.grid[i][j].setIcon(this.iconeVazio);
+                if(!jogador.getTabuleiro().getCasas()[i][j].atingido){
+                    this.grid[i][j].setBackground(this.corPadrao);
+                    if(limparNavios){
+                        this.grid[i][j].setIcon(this.iconeVazio);
+                    }
                 }
             }
         }
@@ -250,12 +306,10 @@ public class PainelTabuleiro extends JPanel {
 
         return new int[]{0, 0};
     }
-    
 
     private ArrayList<Integer[]> getCoordenadasNavioSelecionado(int[] pos) {
         return this.getCoordenadasNavio(pos, this.pai.getNavioSelecionado());
     }
-    
 
     private ArrayList<Integer[]> getCoordenadasNavio(int[] pos, Navio navio) {
         ArrayList<Integer[]> lista = new ArrayList<Integer[]>();
