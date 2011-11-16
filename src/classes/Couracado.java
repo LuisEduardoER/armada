@@ -3,9 +3,16 @@ package classes;
 public class Couracado extends Navio {
 
     public Couracado() {
-        this.setNome("Couraçado");
-        this.setTamanho(3);
-        this.setCaminhoImagens("/images/ships/couracado/");
+        super();
+        this.nome = "Couraçado";
+        this.tamanho = 3;
+        this.caminhoImagens = "/images/ships/couracado/";
+    }
+    
+    public Couracado(int[] pos){
+        this();
+        this.vivo= true;
+        this.pos = pos;
     }
 }
  

@@ -7,6 +7,7 @@ import gui.outros.BotaoPlacar;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import javax.swing.JPanel;
 
@@ -68,7 +69,7 @@ public class PainelPlacar extends JPanel {
             BotaoPlacar botao = new BotaoPlacar(jogador.getTabuleiro().getNavios()[i]);
             botao.addMouseListener(new java.awt.event.MouseAdapter() {
                 @Override
-                public void mouseClicked(java.awt.event.MouseEvent evt) {
+                public void mousePressed(MouseEvent evt) {
                     BotaoPlacar botaoPlacar = (BotaoPlacar) evt.getComponent();
                     Navio navioSemPosicao = botaoPlacar.getNavioSemPosicao();
                     if(navioSemPosicao != null){
@@ -98,8 +99,8 @@ public class PainelPlacar extends JPanel {
     }
 
     public void atualizar() {
-        for(int i = 0; i < this.botoesNavios.size(); i++){
-            this.botoesNavios.get(i).atualizar();
+        for(BotaoPlacar botao : botoesNavios){
+            botao.atualizar();
         }
     }
 }

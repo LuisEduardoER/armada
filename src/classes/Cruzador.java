@@ -3,9 +3,15 @@ package classes;
 public class Cruzador extends Navio {
  
     public Cruzador() {
-        this.setNome("Cruzador");
-        this.setTamanho(2);
-        this.setCaminhoImagens("/images/ships/cruzador/");
+        super();
+        this.nome = "Cruzador";
+        this.tamanho = 2;
+        this.caminhoImagens = "/images/ships/cruzador/";
+    }
+    
+    public Cruzador(int[] pos){
+        this();
+        this.pos = pos;
     }
 }
  
