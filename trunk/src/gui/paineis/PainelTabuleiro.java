@@ -5,6 +5,7 @@ import classes.Jogador;
 import classes.Navio;
 import classes.Orientacao;
 import classes.TipoJogador;
+import gui.outros.BotaoTabuleiro;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -26,17 +27,17 @@ public class PainelTabuleiro extends JPanel {
 
     private JanelaPrincipal pai;
     private Jogador jogador;
-    private final String LETRAS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private JButton[][] grid;
+    private int[] posicaoMouseOver;
+    private BotaoTabuleiro[][] grid;
     private int tamanho;
     private int tamanhoBotao = 33;
     private boolean habilitado;
-    private int[] posicaoMouseOver;
     //----------CONSTANTES------------
-    private final ImageIcon iconeVazio = new ImageIcon();
-    private final Color corPadrao = new JButton().getBackground();
-    private final Color corSelecao = new Color(65, 105, 225);
+    private final String LETRAS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private final Color corPadrao = Color.white;
+    private final Color corSelecao = new Color(65, 225, 105);
     private final Color corSelecaoErro = new Color(255, 30, 65);
+    private final ImageIcon iconeVazio = new ImageIcon();
 
     /** Creates new form PainelTabuleiro
      * @param pai 
@@ -50,7 +51,7 @@ public class PainelTabuleiro extends JPanel {
         int size = tamanho * tamanhoBotao + 20;
         this.setSize(new Dimension(size, size));
 
-        this.grid = new JButton[tamanho][tamanho];
+        this.grid = new BotaoTabuleiro[tamanho][tamanho];
 
         this.construirGrid();
     }
@@ -107,9 +108,10 @@ public class PainelTabuleiro extends JPanel {
             gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
             add(labelLetra, gridBagConstraints);
             for(int j = 0; j < tamanho; j++){
-                this.grid[i][j] = new JButton();
+                this.grid[i][j] = new BotaoTabuleiro("/images/bg/" + (j + 1) + "-" + (i + 1) + ".png");
                 this.grid[i][j].setPreferredSize(new java.awt.Dimension(this.tamanhoBotao, this.tamanhoBotao));
                 this.grid[i][j].setOpaque(true);
+                this.grid[i][j].setBackground(this.corPadrao);
                 this.grid[i][j].addMouseListener(new java.awt.event.MouseAdapter() {
 
                     @Override
@@ -123,51 +125,7 @@ public class PainelTabuleiro extends JPanel {
 
                     @Override
                     public void mousePressed(MouseEvent evt) {
-                        if(Jogo.modoPreparacao){
-                            JButton botao = (JButton) evt.getComponent();
-                            posicaoMouseOver = getPosicao(botao);
-                            ArrayList<Integer[]> coords = getCoordenadasNavioSelecionado(posicaoMouseOver);
-
-                            if(coordenadasEstaoLivres(coords)){
-                                int[] pos = posicaoMouseOver;
-                                if(!coords.isEmpty()){
-                                    pos = new int[]{coords.get(0)[0], coords.get(0)[1]};
-                                }
-
-                                pai.selecionarPosicao(pos);
-                            } else {
-                                mouseOver(posicaoMouseOver);
-                            }
-                        } else {
-                            /* Saca só... Isso pode ser dificil de entender... Mas como eu sou legal vou explicar
-                             * bem direitinho. Se liga:
-                             * 
-                             * Se o jogador começa jogando, ele joga só nos turnos impares.
-                             * Mas se ele nao começa jogando, ele joga só nos turnos pares.
-                             * Então, pra ele poder adicionar um ataque nesse tabuleiro no modo de jogo, é necessario:
-                             * - Ser o tabuleiro do jogador adversario. (primeira condicao)
-                             * - Estar na vez dele de adicionarAtaque.  (segunda condicao)
-                             * 
-                             * Sim, eu sei que isso pode parecer meio óbvio, mas vai saber quem está lendo
-                             * isso aqui né...
-                             */
-                            boolean turnoPar = Jogo.turno % 2 == 0;
-
-                            if(jogador.getTipo() == TipoJogador.ADVERSARIO
-                                    && ((turnoPar && jogador.comecaJogando()) || (!turnoPar && !jogador.comecaJogando()))){
-
-                                JButton botao = (JButton) evt.getComponent();
-                                int[] pos = getPosicao(botao);
-                                
-                                if(jogador.getTabuleiro().getCasas()[pos[0]][pos[1]].atingido) return;
-
-                                if(Main.jogo.adicionarAtaque(pos)){
-                                    botao.setBackground(Color.RED);
-                                } else {
-                                    botao.setBackground(corPadrao);
-                                }
-                            }
-                        }
+                        clicarBotaoGrid(evt);
                     }
                 });
                 gridBagConstraints.gridx = i + 1;
@@ -178,6 +136,61 @@ public class PainelTabuleiro extends JPanel {
         }
     }
 
+    private void clicarBotaoGrid(MouseEvent evt) {
+        JButton botao = (JButton) evt.getComponent();
+        posicaoMouseOver = getPosicao(botao);
+        
+        if(Jogo.modoPreparacao){
+            ArrayList<Integer[]> coords = getCoordenadasNavioSelecionado(posicaoMouseOver);
+
+            if(coordenadasEstaoLivres(coords)){
+                int[] pos = posicaoMouseOver;
+                if(!coords.isEmpty()){
+                    pos = new int[]{coords.get(0)[0], coords.get(0)[1]};
+                }
+
+                pai.selecionarPosicao(pos);
+            } else {
+                mouseOver(posicaoMouseOver);
+            }
+        } else {
+            /* Saca só... Isso pode ser dificil de entender... Mas como eu sou legal vou explicar
+             * bem direitinho. Se liga:
+             * 
+             * Se o jogador começa jogando, ele joga só nos turnos impares. (1, 3, 5...)
+             * Mas se ele nao começa jogando, ele joga só nos turnos pares. (2, 4, 6...) (duh)
+             * Então, pra ele poder adicionar um ataque nesse tabuleiro no modo de jogo, é necessario:
+             * - Ser o tabuleiro do jogador adversario. (primeira condicao)
+             * - Estar na vez dele de adicionarAtaque.  (segunda condicao)
+             * 
+             * Sim, eu sei que isso pode parecer meio óbvio, mas vai saber quem está lendo isso aqui né...
+             */
+            boolean turnoPar = Jogo.turno % 2 == 0;
+
+            if(jogador.getTipo() == TipoJogador.ADVERSARIO
+                    && ((turnoPar && jogador.comecaJogando()) || (!turnoPar && !jogador.comecaJogando()))){
+
+                Main.jogo.adicionarAtaque(posicaoMouseOver);
+            }
+        }
+    }
+
+    public void atualizarTiros() {
+        ArrayList<Integer[]> tiros = Main.jogo.getJogador(true).getTiros();
+
+        for(int i = 0; i < tamanho; i++){
+            for(int j = 0; j < tamanho; j++){
+                if(!jogador.getTabuleiro().getCasas()[i][j].atingido){
+                    grid[i][j].setBackground(corPadrao);
+                }
+            }
+        }
+
+        for(Integer[] tiro : tiros){
+            grid[tiro[0]][tiro[1]].setBackground(Color.RED);
+        }
+    }
+
     public void atirar() {
         ArrayList<Integer[]> tiros = Main.jogo.getJogador(true).getTiros();
 
@@ -185,7 +198,7 @@ public class PainelTabuleiro extends JPanel {
             for(Integer[] pos : tiros){
                 JButton botao = this.grid[pos[0]][pos[1]];
                 int[] p = new int[]{pos[0], pos[1]};
-                
+
                 ImageIcon imagem = getImagem(p);
                 if(imagem != null){
                     botao.setIcon(imagem);
@@ -194,6 +207,7 @@ public class PainelTabuleiro extends JPanel {
                     botao.setBackground(corSelecao);
                 }
             }
+        } else {
         }
     }
 
@@ -271,7 +285,7 @@ public class PainelTabuleiro extends JPanel {
                 }
 
                 img = new ImageIcon(getClass().getResource(navio.getCaminhoImagens() + ori + j + ".png"));
-                grid[x][y].setIcon(img);
+                grid[x][y].setImagemNavio(img);
 
                 if(navio.getOrientacao() == Orientacao.VERTICAL){
                     y += 1;
@@ -288,7 +302,7 @@ public class PainelTabuleiro extends JPanel {
                 if(!jogador.getTabuleiro().getCasas()[i][j].atingido){
                     this.grid[i][j].setBackground(this.corPadrao);
                     if(limparNavios){
-                        this.grid[i][j].setIcon(this.iconeVazio);
+                        this.grid[i][j].setImagemNavio(iconeVazio);
                     }
                 }
             }
@@ -365,8 +379,9 @@ public class PainelTabuleiro extends JPanel {
     }
 
     public void mouseOver(int[] pos) {
-        ArrayList<Integer[]> coords = this.getCoordenadasNavio(pos, pai.getNavioSelecionado());
-
+        Navio navio = pai.getNavioSelecionado();
+        ArrayList<Integer[]> coords = this.getCoordenadasNavio(pos, navio);
+        
         Color cor = this.corSelecao;
         if(!this.coordenadasEstaoLivres(coords)){
             cor = this.corSelecaoErro;
@@ -374,6 +389,7 @@ public class PainelTabuleiro extends JPanel {
 
         for(int i = 0; i < coords.size(); i++){
             this.grid[coords.get(i)[0]][coords.get(i)[1]].setBackground(cor);
+            this.grid[coords.get(i)[0]][coords.get(i)[1]].setOrientacao(navio.getOrientacao());
         }
     }
 
