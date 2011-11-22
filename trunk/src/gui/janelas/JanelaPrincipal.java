@@ -3,7 +3,6 @@ package gui.janelas;
 import classes.Jogador;
 import classes.Navio;
 import classes.Orientacao;
-import classes.TipoJogador;
 import gui.paineis.PainelLateral;
 import gui.paineis.PainelPlacar;
 import gui.paineis.PainelPrincipal;
@@ -112,14 +111,14 @@ public class JanelaPrincipal extends JFrame implements KeyListener {
             this.navioSelecionado = null;
             tabuleiroJogador.atualizarPosicaoNavios();
             
-            if(tabuleiroJogador.getQtdeNaviosSemPosicao() == 0){
+            if(jogadorLocal.getTabuleiro().getQtdeNaviosSemPosicao() == 0){
                 this.painelLateral.getPainelInfo().getBotaoPreparar().setVisible(true);
             }
 
             placares[0].atualizar();
         } else {  //se esta reposicionando o navio
             this.painelLateral.getPainelInfo().getBotaoPreparar().setVisible(false);
-            Navio navio = tabuleiroJogador.getNavio(pos);
+            Navio navio = jogadorLocal.getTabuleiro().getNavio(pos);
             if(navio != null){
                 navio.setPos(null);
                 this.navioSelecionado = navio;

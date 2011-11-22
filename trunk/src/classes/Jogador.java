@@ -39,6 +39,21 @@ public class Jogador {
         this.nome = "Zezé di Camargo";
         
         Navio[] navios = new Navio[] {
+            new PortaAvioes(new int[]{1,1}), 
+            new Destroyer(new int[]{2,2}),
+            new Destroyer(new int[]{3,3}),
+            new Couracado(new int[]{4,4}),
+            new Couracado(new int[]{5,5}),
+            new Cruzador(new int[]{6,6}),
+            new Cruzador(new int[]{7,7}),
+            new Cruzador(new int[]{8,8})
+        };
+        
+        this.tabuleiro = new Tabuleiro(13, navios);
+        this.tipo = TipoJogador.LOCAL;
+        this.tiros = new ArrayList();
+        
+        /*Navio[] navios = new Navio[] {
             new PortaAvioes(), 
             new Destroyer(),
             new Destroyer(),
@@ -51,7 +66,7 @@ public class Jogador {
         
         this.tabuleiro = new Tabuleiro(13, navios);
         this.tipo = tipo;
-        this.tiros = new ArrayList();
+        this.tiros = new ArrayList();*/
     }
 
         
