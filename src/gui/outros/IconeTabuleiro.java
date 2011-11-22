@@ -1,10 +1,11 @@
 /**
- * @(#)DualIcon.java	1.0 03/18/09
+ * @(#)IconeTabuleiro.java	1.0 03/18/09
  */
 package gui.outros;
 
 import java.awt.Component;
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.SwingConstants;
@@ -19,7 +20,7 @@ import javax.swing.SwingConstants;
  * @version 1.0 03/11/09
  * @author Darryl
  */
-public class DualIcon implements Icon, SwingConstants {
+public class IconeTabuleiro implements Icon, SwingConstants {
 
     private ImageIcon imagemNavio;
     private ImageIcon imagemExtra;
@@ -33,7 +34,7 @@ public class DualIcon implements Icon, SwingConstants {
     private int bgHOffset;
     private int bgVOffset;
 
-    public DualIcon(String caminhoBG) {
+    public IconeTabuleiro(String caminhoBG) {
         this.imagemNavio = new ImageIcon();
         this.imagemExtra = new ImageIcon();
 
@@ -41,6 +42,18 @@ public class DualIcon implements Icon, SwingConstants {
         height = 33;
 
         this.bg = new ImageIcon(getClass().getResource(caminhoBG));
+        bgHOffset = (width - bg.getIconWidth()) / 2;
+        bgVOffset = (height - bg.getIconHeight()) / 2;
+    }
+    
+    public IconeTabuleiro(BufferedImage bi) {
+        this.imagemNavio = new ImageIcon();
+        this.imagemExtra = new ImageIcon();
+
+        width = 33;
+        height = 33;
+
+        this.bg = new ImageIcon(bi);
         bgHOffset = (width - bg.getIconWidth()) / 2;
         bgVOffset = (height - bg.getIconHeight()) / 2;
     }

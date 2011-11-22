@@ -11,7 +11,11 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -27,17 +31,19 @@ public class PainelTabuleiro extends JPanel {
 
     private JanelaPrincipal pai;
     private Jogador jogador;
-    private int[] posicaoMouseOver;
+    private int[] posicaoMouseOver;   //posicao no grid que o cursor esta em cima. É atualizado pelo metodo mouseEntered
     private BotaoTabuleiro[][] grid;
     private int tamanho;
-    private int tamanhoBotao = 33;
-    private boolean habilitado;
+    private int t = 33;   //tamanho do botao
+    private boolean habilitado;   //booleano que define se o grid é utilizavel (botoes funcionando) ou não.
     //----------CONSTANTES------------
     private final String LETRAS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private final Color corPadrao = Color.white;
     private final Color corSelecao = new Color(65, 225, 105);
     private final Color corSelecaoErro = new Color(255, 30, 65);
     private final ImageIcon iconeVazio = new ImageIcon();
+    private final ImageIcon iconeAcerto = new ImageIcon(getClass().getResource("/images/tiro-acerto.png"));
+    private final ImageIcon iconeErro = new ImageIcon(getClass().getResource("/images/tiro-erro.png"));
 
     /** Creates new form PainelTabuleiro
      * @param pai 
@@ -48,7 +54,7 @@ public class PainelTabuleiro extends JPanel {
         this.jogador = jogador;
         this.tamanho = this.jogador.getTabuleiro().getTamanho();
 
-        int size = tamanho * tamanhoBotao + 20;
+        int size = tamanho * t + 20;
         this.setSize(new Dimension(size, size));
 
         this.grid = new BotaoTabuleiro[tamanho][tamanho];
@@ -107,24 +113,35 @@ public class PainelTabuleiro extends JPanel {
             gridBagConstraints.gridy = i + 1;
             gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
             add(labelLetra, gridBagConstraints);
+
+            BufferedImage bi = null;
+            try {
+                InputStream is = getClass().getResourceAsStream("/images/bg/mar.jpg");
+                bi = ImageIO.read(is);
+            } catch(IOException e){
+            }
+
             for(int j = 0; j < tamanho; j++){
-                this.grid[i][j] = new BotaoTabuleiro("/images/bg/" + (j + 1) + "-" + (i + 1) + ".png");
-                this.grid[i][j].setPreferredSize(new java.awt.Dimension(this.tamanhoBotao, this.tamanhoBotao));
+                this.grid[i][j] = new BotaoTabuleiro(bi.getSubimage(i * t, j * t, t, t));
+                this.grid[i][j].setPreferredSize(new java.awt.Dimension(this.t, this.t));
                 this.grid[i][j].setOpaque(true);
                 this.grid[i][j].setBackground(this.corPadrao);
                 this.grid[i][j].addMouseListener(new java.awt.event.MouseAdapter() {
 
                     @Override
                     public void mouseEntered(MouseEvent evt) {
-                        if(Jogo.modoPreparacao){
-                            JButton botao = (JButton) evt.getComponent();
-                            posicaoMouseOver = getPosicao(botao);
-                            mouseOver();
-                        }
+                        JButton botao = (JButton) evt.getComponent();
+                        posicaoMouseOver = getPosicao(botao);
+                        mouseOver();
                     }
 
                     @Override
-                    public void mousePressed(MouseEvent evt) {
+                    public void mouseExited(MouseEvent evt) {
+                        limparGrid(false);
+                    }
+
+                    @Override
+                    public void mouseReleased(MouseEvent evt) {
                         clicarBotaoGrid(evt);
                     }
                 });
@@ -139,11 +156,11 @@ public class PainelTabuleiro extends JPanel {
     private void clicarBotaoGrid(MouseEvent evt) {
         JButton botao = (JButton) evt.getComponent();
         posicaoMouseOver = getPosicao(botao);
-        
+
         if(Jogo.modoPreparacao){
             ArrayList<Integer[]> coords = getCoordenadasNavioSelecionado(posicaoMouseOver);
 
-            if(coordenadasEstaoLivres(coords)){
+            if(jogador.getTabuleiro().coordenadasEstaoLivres(coords)){
                 int[] pos = posicaoMouseOver;
                 if(!coords.isEmpty()){
                     pos = new int[]{coords.get(0)[0], coords.get(0)[1]};
@@ -181,90 +198,58 @@ public class PainelTabuleiro extends JPanel {
         for(int i = 0; i < tamanho; i++){
             for(int j = 0; j < tamanho; j++){
                 if(!jogador.getTabuleiro().getCasas()[i][j].atingido){
-                    grid[i][j].setBackground(corPadrao);
+                    //grid[i][j].setBackground(corPadrao);
+                    grid[i][j].setNumTiro(0);
                 }
             }
         }
 
+        int i = 1;
         for(Integer[] tiro : tiros){
-            grid[tiro[0]][tiro[1]].setBackground(Color.RED);
+            grid[tiro[0]][tiro[1]].setNumTiro(i++);
+            grid[tiro[0]][tiro[1]].updateUI();
         }
     }
 
     public void atirar() {
         ArrayList<Integer[]> tiros = Main.jogo.getJogador(true).getTiros();
 
-        if(jogador.getTipo() == TipoJogador.ADVERSARIO){
-            for(Integer[] pos : tiros){
-                JButton botao = this.grid[pos[0]][pos[1]];
-                int[] p = new int[]{pos[0], pos[1]};
+        for(Integer[] tiro : tiros){
+            BotaoTabuleiro botao = this.grid[tiro[0]][tiro[1]];
+            botao.setNumTiro(0);
+            int[] pos = new int[]{tiro[0], tiro[1]};
 
-                ImageIcon imagem = getImagem(p);
-                if(imagem != null){
-                    botao.setIcon(imagem);
-                    botao.setBackground(corPadrao);
-                } else {
-                    botao.setBackground(corSelecao);
-                }
+            if(jogador.getTabuleiro().acertouNavio(pos)){
+                botao.getIcone().setImagemExtra(this.iconeAcerto);
+            } else {
+                botao.getIcone().setImagemExtra(this.iconeErro);
             }
-        } else {
+
+            botao.updateUI();
+        }
+
+        if(jogador.getTipo() == TipoJogador.ADVERSARIO){
+            mostrarNaviosMortos();
         }
     }
 
-    public ImageIcon getImagem(int[] pos) {
-        ArrayList<Navio> navios = this.getNaviosPosicionados();
+    private void mostrarNaviosMortos() {
+        ArrayList<Navio> navios = jogador.getTabuleiro().getNaviosPosicionados();
         for(int i = 0; i < navios.size(); i++){
             Navio navio = navios.get(i);
-
-            String ori;
-            if(navio.getOrientacao() == Orientacao.VERTICAL){
-                ori = "v";
-            } else {
-                ori = "h";
-            }
-            int x = navio.getPos()[0];
-            int y = navio.getPos()[1];
-            for(int j = 1; j <= navio.getTamanho(); j++){
-                if(pos[0] == x && pos[1] == y){
-                    return new ImageIcon(getClass().getResource(navio.getCaminhoImagens() + ori + j + ".png"));
-                }
-
-                if(navio.getOrientacao() == Orientacao.VERTICAL){
-                    y++;
-                } else {
-                    x++;
+            if(!navio.isVivo()){
+                int[] pos = new int[]{navio.getPos()[0], navio.getPos()[1]};
+                for(int j = 0; j < navio.getTamanho(); j++){
+                    this.grid[pos[0]][pos[1]].getIcone().setImagemNavio(new ImageIcon(jogador.getTabuleiro().getCaminhoImagem(pos)));
+                    this.grid[pos[0]][pos[1]].updateUI();
+                    if(navio.getOrientacao() == Orientacao.HORIZONTAL){
+                        pos[0]++;
+                    } else {
+                        pos[1]++;
+                    }
                 }
             }
         }
-
-        return null;
-    }
-
-    private ArrayList<Navio> getNaviosPosicionados() {
-        ArrayList<Navio> navios = new ArrayList<Navio>();
-
-        for(int i = 0; i < this.jogador.getTabuleiro().getNavios().length; i++){
-            Navio navio = this.jogador.getTabuleiro().getNavios()[i];
-
-            if(navio.getPos() != null){
-                navios.add(navio);
-            }
-        }
-
-        return navios;
-    }
-
-    public int getQtdeNaviosSemPosicao() {
-        int qtde = 0;
-
-        for(int i = 0; i < this.jogador.getTabuleiro().getNavios().length; i++){
-            Navio navio = this.jogador.getTabuleiro().getNavios()[i];
-            if(navio.getPos() == null){
-                qtde++;
-            }
-        }
-
-        return qtde;
     }
 
     /**
@@ -274,7 +259,7 @@ public class PainelTabuleiro extends JPanel {
         ImageIcon img = null;
         this.limparGrid(true);
 
-        ArrayList<Navio> navios = this.getNaviosPosicionados();
+        ArrayList<Navio> navios = jogador.getTabuleiro().getNaviosPosicionados();
         for(Navio navio : navios){
             int x = navio.getPos()[0];
             int y = navio.getPos()[1];
@@ -299,12 +284,13 @@ public class PainelTabuleiro extends JPanel {
     public void limparGrid(boolean limparNavios) {
         for(int i = 0; i < tamanho; i++){
             for(int j = 0; j < tamanho; j++){
-                if(!jogador.getTabuleiro().getCasas()[i][j].atingido){
-                    this.grid[i][j].setBackground(this.corPadrao);
-                    if(limparNavios){
-                        this.grid[i][j].setImagemNavio(iconeVazio);
-                    }
+                this.grid[i][j].setBackground(this.corPadrao);
+                this.grid[i][j].setHighlightMira(false);
+                this.grid[i][j].setHighlightNavio(false);
+                if(limparNavios){
+                    this.grid[i][j].setImagemNavio(iconeVazio);
                 }
+
             }
         }
     }
@@ -322,97 +308,48 @@ public class PainelTabuleiro extends JPanel {
     }
 
     private ArrayList<Integer[]> getCoordenadasNavioSelecionado(int[] pos) {
-        return this.getCoordenadasNavio(pos, this.pai.getNavioSelecionado());
-    }
-
-    private ArrayList<Integer[]> getCoordenadasNavio(int[] pos, Navio navio) {
-        ArrayList<Integer[]> lista = new ArrayList<Integer[]>();
-
-        if(navio != null){
-            this.limparGrid(false);
-            int x = pos[0];
-            int y = pos[1];
-            if(navio.getOrientacao() == Orientacao.HORIZONTAL && x + navio.getTamanho() > tamanho){
-                x = tamanho - navio.getTamanho();
-            } else if(navio.getOrientacao() == Orientacao.VERTICAL && y + navio.getTamanho() > tamanho){
-                y = tamanho - navio.getTamanho();
-            }
-
-            for(int i = 0; i < navio.getTamanho(); i++){
-                lista.add(new Integer[]{x, y});
-                if(navio.getOrientacao() == Orientacao.HORIZONTAL){
-                    x++;
-                } else {
-                    y++;
-                }
-            }
-        }
-
-        return lista;
-    }
-
-    private boolean coordenadasSeCruzam(ArrayList<Integer[]> lista1, ArrayList<Integer[]> lista2) {
-        for(int i = 0; i < lista1.size(); i++){
-            for(int j = 0; j < lista2.size(); j++){
-                if(lista1.get(i)[0] == lista2.get(j)[0] && lista1.get(i)[1] == lista2.get(j)[1]){
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    private boolean coordenadasEstaoLivres(ArrayList<Integer[]> coordenadas) {
-        ArrayList<Integer[]> lista = coordenadas;
-        ArrayList<Navio> navios = this.getNaviosPosicionados();
-
-        for(int i = 0; i < navios.size(); i++){
-            Navio navio = navios.get(i);
-
-            if(this.coordenadasSeCruzam(lista, navio.getCoordenadas())){
-                return false;
-            }
-        }
-
-        return true;
+        return this.jogador.getTabuleiro().getCoordenadasNavio(pos, this.pai.getNavioSelecionado());
     }
 
     public void mouseOver(int[] pos) {
         Navio navio = pai.getNavioSelecionado();
-        ArrayList<Integer[]> coords = this.getCoordenadasNavio(pos, navio);
-        
-        Color cor = this.corSelecao;
-        if(!this.coordenadasEstaoLivres(coords)){
-            cor = this.corSelecaoErro;
-        }
+        ArrayList<Integer[]> coords = this.jogador.getTabuleiro().getCoordenadasNavio(pos, navio);
 
-        for(int i = 0; i < coords.size(); i++){
-            this.grid[coords.get(i)[0]][coords.get(i)[1]].setBackground(cor);
-            this.grid[coords.get(i)[0]][coords.get(i)[1]].setOrientacao(navio.getOrientacao());
+        if(Jogo.modoPreparacao){
+            Color cor = this.corSelecao;
+            if(!jogador.getTabuleiro().coordenadasEstaoLivres(coords)){
+                cor = this.corSelecaoErro;
+            }
+
+            for(int i = 0; i < coords.size(); i++){
+                this.grid[coords.get(i)[0]][coords.get(i)[1]].setHighlightNavio(true);
+                this.grid[coords.get(i)[0]][coords.get(i)[1]].setBackground(cor);
+                this.grid[coords.get(i)[0]][coords.get(i)[1]].setOrientacao(navio.getOrientacao());
+            }
+        } else {
+            if(this.jogador.getTipo() == TipoJogador.ADVERSARIO && Main.jogo.getJogador(true).getTipo() == TipoJogador.LOCAL){
+                Color cor = this.corSelecaoErro;
+
+                for(int i = 0; i < tamanho; i++){
+                    if(i != pos[1]){
+                        this.grid[pos[0]][i].setHighlightMira(true);
+                        this.grid[pos[0]][i].setBackground(cor);
+                        this.grid[pos[0]][i].setOrientacao(Orientacao.VERTICAL);
+                    }
+                }
+
+                for(int i = 0; i < tamanho; i++){
+                    if(i != pos[0]){
+                        this.grid[i][pos[1]].setHighlightMira(true);
+                        this.grid[i][pos[1]].setBackground(cor);
+                        this.grid[i][pos[1]].setOrientacao(Orientacao.HORIZONTAL);
+                    }
+                }
+            }
         }
     }
 
     public void mouseOver() {
         this.mouseOver(posicaoMouseOver);
-    }
-
-    public Navio getNavio(int pos[]) {
-        Navio navio = null;
-        ArrayList<Navio> navios = this.getNaviosPosicionados();
-
-        for(int i = 0; i < navios.size(); i++){
-            ArrayList<Integer[]> coords = this.getCoordenadasNavio(navios.get(i).getPos(), navios.get(i));
-            for(int j = 0; j < coords.size(); j++){
-                int x = coords.get(j)[0];
-                int y = coords.get(j)[1];
-                if(x == pos[0] && y == pos[1]){
-                    navio = navios.get(i);
-                    break;
-                }
-            }
-        }
-
-        return navio;
     }
 }

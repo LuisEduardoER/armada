@@ -176,6 +176,8 @@ public class Jogo {
         for(Integer[] pos : tiros){
             levadorDeBala.getTabuleiro().getCasas()[pos[0]][pos[1]].atingido = true;
         }
+        
+        this.atualizarStatusNavios(levadorDeBala);
 
         if(levadorDeBala.getTipo() == TipoJogador.LOCAL){
             janelaPrincipal.getPainelPrincipal().getTabuleiroJogador().atirar();
@@ -183,7 +185,6 @@ public class Jogo {
             janelaPrincipal.getPainelPrincipal().getTabuleiroAdversario().atirar();
         }
 
-        this.atualizarStatusNavios(levadorDeBala);
         this.trocarTurno();
     }
 
