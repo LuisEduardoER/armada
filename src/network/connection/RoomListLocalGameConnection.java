@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import network.Connection;
 import network.datapackage.Package;
 import network.server.RoomListServer;
 
@@ -71,5 +70,7 @@ public class RoomListLocalGameConnection extends Connection{
             this.listenConnection();
         }
     }
+
+    
     
 }
