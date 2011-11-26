@@ -13,7 +13,6 @@ import network.connection.RoomListClientConnection;
 import network.connection.RoomListLocalGameConnection;
 import network.datapackage.Package;
 
-
 /**
  *
  * @author dolalima
@@ -23,81 +22,94 @@ public class RoomListServer {
     public static void processClientPackage(network.datapackage.Package pack) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
-
-    
-
     private int clientPort = 6001;
     private int roomPort = 6000;
     private int maxRoom = 200;
-    private boolean run;
+    private int maxClient = 200;
+    private boolean run = false;
     private boolean roomListFull;
-    // Lista de Conexoẽs
-    private ArrayList<RoomListLocalGameConnection> roomList;
-    private ArrayList<RoomListClientConnection> clientList;
+    // Lista de Conexoẽs com Thread
+    private RoomList roomList;
+    private ClientList clientList;
     // Conexões
     private ServerSocket roomServer;
     private ServerSocket clientServer;
-    // Thread de Conexão
-    private Thread roomListen;
-    private Thread clientListen;
+    
+    
 
     public RoomListServer() {
-    }
 
-    private void starClientListen() {
-        while (this.isRun()) {
 
-            try {
+        try {
+            Log("Iniciando listas de salas e clientes.");
+            this.roomServer = new ServerSocket(this.roomPort);
+            this.clientServer = new ServerSocket(this.clientPort);
+            Log("Inciando Thread de Conexão");
+            this.clientList = new ClientList(this.clientServer,this.maxClient);
+            this.roomList = new RoomList(this.roomServer,this.maxRoom);
+            this.clientList.start();
+            this.roomList.start();
+            
+            this.run = true;
+            
+            Log("Servidor de salas iniciado com sucesso.\n"
+                    + "Aguargando Conexões:");
 
-                RoomListLocalGameConnection client = new RoomListLocalGameConnection(
-                        this.clientList.size(), this.clientServer.accept());
-                client.start();
-                this.roomList.add(client);
-
-            } catch (IOException ex) {
-                Logger.getLogger(RoomListServer.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        } catch (IOException ex) {
+            Logger.getLogger(RoomListServer.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-    }
-
-    private void startRoomListen() {
-        while (this.isRun()) {
-
-            try {
-
-                RoomListClientConnection client = new RoomListClientConnection(
-                        this.clientList.size(), this.clientServer.accept());
-                client.start();
-                this.clientList.add(client);
-
-            } catch (IOException ex) {
-                Logger.getLogger(RoomListServer.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-
     }
     
+    public final void Log(String log){
+        System.out.println(log);
+    }
     
-    
-    
-    public static void processRoomPackage(Package pack){
+    public ServerSocket getClientServer() {
+        return clientServer;
+    }
+
+    public void setClientServer(ServerSocket clientServer) {
+        this.clientServer = clientServer;
+    }
+
+    public ServerSocket getRoomServer() {
+        return roomServer;
+    }
+
+    public void setRoomServer(ServerSocket roomServer) {
+        this.roomServer = roomServer;
+    }
+
+    public static void processRoomPackage(Package pack) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
-
-    static void processInputData(String input) {
+    
+    public static void proccesClientPackage(Package pack){
         throw new UnsupportedOperationException("Not yet implemented");
+        
     }
 
-    void processOutputData(String output) {
+    static void dropClient(int idClient){
         throw new UnsupportedOperationException("Not yet implemented");
+        
     }
-
+    
     static void dropRoom(int idRoom) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
-    private boolean isRun() {
+    public boolean isRun() {
         return this.run;
     }
+    
+    public static void main(String[] args){
+        RoomListServer s = new RoomListServer();
+        
+        while (s.isRun());
+        
+    }
+
+    
+    
+    
 }
