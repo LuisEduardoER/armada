@@ -13,5 +13,11 @@ public class Cruzador extends Navio {
         this();
         this.pos = pos;
     }
+    
+    public Cruzador(int[] pos, Orientacao ori){
+        this();
+        this.pos = pos;
+        this.orientacao = ori;
+    }
 }
  

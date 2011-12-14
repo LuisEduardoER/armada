@@ -14,5 +14,11 @@ public class Couracado extends Navio {
         this.vivo= true;
         this.pos = pos;
     }
+    
+    public Couracado(int[] pos, Orientacao ori){
+        this();
+        this.pos = pos;
+        this.orientacao = ori;
+    }
 }
  

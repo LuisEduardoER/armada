@@ -45,12 +45,12 @@ public class Tabuleiro {
         this.casas = casas;
     }
 
-    public ArrayList<Integer[]> getCoordenadasNavio(int[] pos, Navio navio) {
+    public ArrayList<Integer[]> getCoordenadasNavio(int[] posInicial, Navio navio) {
         ArrayList<Integer[]> lista = new ArrayList<Integer[]>();
 
         if(navio != null){
-            int x = pos[0];
-            int y = pos[1];
+            int x = posInicial[0];
+            int y = posInicial[1];
             if(navio.getOrientacao() == Orientacao.HORIZONTAL && x + navio.getTamanho() > tamanho){
                 x = tamanho - navio.getTamanho();
             } else if(navio.getOrientacao() == Orientacao.VERTICAL && y + navio.getTamanho() > tamanho){
@@ -109,6 +109,19 @@ public class Tabuleiro {
         for(int i = 0; i < navios.length; i++){
             Navio navio = navios[i];
             if(navio.getPos() == null){
+                qtde++;
+            }
+        }
+
+        return qtde;
+    }
+    
+
+    public int getQtdeNaviosVivos() {
+        int qtde = 0;
+
+        for(Navio navio : navios){
+            if(navio.isVivo()){
                 qtde++;
             }
         }
@@ -192,5 +205,16 @@ public class Tabuleiro {
         }
 
         return null;
+    }
+    
+    
+    public boolean todosNaviosDerrubados(){
+        boolean todosMortos = true;
+        
+        for(Navio navio : navios){
+            todosMortos = todosMortos && !navio.isVivo();
+        }
+        
+        return todosMortos;
     }
 }

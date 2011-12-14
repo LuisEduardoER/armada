@@ -10,7 +10,8 @@
  */
 package gui.janelas;
 
-import classes.Sala;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import table.ButtonEditor;
 import table.ButtonRenderer;
 import table.CenterTableCellRenderer;
@@ -27,6 +28,17 @@ public class JanelaSalas extends javax.swing.JFrame {
     /** Creates new form JanelaSalas */
     public JanelaSalas() {
         this.initComponents();
+        
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        
+        int w = getSize().width;
+        int h = getSize().height;
+        int x = (dim.width-w)/2;
+        int y = (dim.height-h)/2;
+
+        setLocation(x, y);
+        
+        this.setTitle("Salas");
         this.configurarTable();
     }
 
@@ -126,6 +138,7 @@ private void clicarCriarSala(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_c
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
                 new JanelaSalas().setVisible(true);
             }
@@ -139,7 +152,10 @@ private void clicarCriarSala(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_c
     // End of variables declaration//GEN-END:variables
 
     private void criarSala() {
-        this.model.inserir(new Sala("CHEGAE", Sala.ESPERANDO, "Arthur", "Clássico"));
+        //this.model.inserir(new Sala("CHEGAE", Sala.ESPERANDO, "Arthur", "Clássico"));
+        
+        JanelaInicial janela = new JanelaInicial(this, true);
+        janela.setVisible(true);
     }
 
     private void configurarTable() {

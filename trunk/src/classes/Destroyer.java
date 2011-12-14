@@ -13,5 +13,11 @@ public class Destroyer extends Navio {
         this();
         this.pos = pos;
     }
+    
+    public Destroyer(int[] pos, Orientacao ori){
+        this();
+        this.pos = pos;
+        this.orientacao = ori;
+    }
 }
  

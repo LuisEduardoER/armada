@@ -23,7 +23,7 @@ import main.Jogo;
 public class BotaoPlacar extends JButton {
     
     public static final int LARGURA = 165;
-    public static final int ALTURA = 51;    
+    public static final int ALTURA = 51;
     
     private ArrayList<Navio> navios;
     
