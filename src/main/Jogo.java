@@ -15,12 +15,17 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import network.datapackage.Package;
 
 /**
  *
  * @author arthur
  */
 public class Jogo {
+
+    public static void processClientPackage(Package pack) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
 
     private JanelaSalas janelaSalas;
     private JanelaPrincipal janelaPrincipal;
