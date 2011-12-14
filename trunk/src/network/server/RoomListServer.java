@@ -6,11 +6,8 @@ package network.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import network.connection.RoomListClientConnection;
-import network.connection.RoomListLocalGameConnection;
 import network.datapackage.Package;
 
 /**
