@@ -39,6 +39,7 @@ public class RoomClientTeste extends Connection {
     public static void main(String[] arg){
         
         RoomClientTeste client = new RoomClientTeste();
+        client.start();
         
         
         
@@ -51,9 +52,6 @@ public class RoomClientTeste extends Connection {
         
     }
 
-    @Override
-    public void run() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+    
     
 }
