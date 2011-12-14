@@ -31,7 +31,6 @@ public class PainelPrincipal extends JPanel {
     
     private JPanel painelPlacares;
     private JPanel painelTabuleiros;
-    private JPanel painelMensagens;
     private JPanel painelNomes;
     
     private JScrollPane sp1;
@@ -40,7 +39,6 @@ public class PainelPrincipal extends JPanel {
     private PainelPlacar[] placares;
     private PainelTabuleiro[] tabuleiros;
     
-    private JLabel[] mensagens;
     private JLabel[] nomes;
     
     private Jogador[] jogadores;
@@ -61,7 +59,6 @@ public class PainelPrincipal extends JPanel {
     private void construir(){
         this.painelTabuleiros = new JPanel();
         this.painelPlacares = new JPanel();
-        this.painelMensagens = new JPanel();
         this.painelNomes = new JPanel();
 
         sp1 = new JScrollPane();
@@ -76,16 +73,12 @@ public class PainelPrincipal extends JPanel {
         painelTabuleiros.setLayout(new GridLayout(1, 2, 10, 0));
         painelInterior.add(painelTabuleiros, BorderLayout.CENTER);
 
-        painelMensagens.setLayout(new GridLayout(1, 2, 10, 0));
-        painelInterior.add(painelMensagens, BorderLayout.SOUTH);
-
         painelNomes.setLayout(new GridLayout(1, 2, 10, 0));
         painelInterior.add(painelNomes, BorderLayout.NORTH);
 
 
         placares = new PainelPlacar[2];
         tabuleiros = new PainelTabuleiro[2];
-        mensagens = new JLabel[2];
         nomes = new JLabel[2];
 
         tabuleiros[LOCAL] = new PainelTabuleiro(pai, jogadores[LOCAL]);
@@ -96,11 +89,6 @@ public class PainelPrincipal extends JPanel {
 
 
         for(int i = 0; i < 2; i++){
-            mensagens[i] = new JLabel("Clique no navio para adiciona-lo ao tabuleiro.");
-            mensagens[i].setBorder(new EmptyBorder(2, 5, 2, 5));
-            mensagens[i].setFont(new Font("Verdana", Font.BOLD, 12));
-            mensagens[i].setHorizontalAlignment(SwingConstants.CENTER);
-
             nomes[i] = new JLabel(jogadores[i].getNome());
             nomes[i].setBorder(new EmptyBorder(12, 5, 1, 5));
             nomes[i].setFont(new Font("Verdana", Font.BOLD, 18));
@@ -111,7 +99,6 @@ public class PainelPrincipal extends JPanel {
         painelTabuleiros.add(sp1);
 
         painelPlacares.add(placares[LOCAL]);
-        painelMensagens.add(mensagens[LOCAL]);
         painelNomes.add(nomes[LOCAL]);
 
         painelTabuleiros.setPreferredSize(new Dimension(tabuleiros[LOCAL].getSize().width, tabuleiros[LOCAL].getSize().height));
@@ -149,7 +136,6 @@ public class PainelPrincipal extends JPanel {
         
         painelTabuleiros.add(sp2);
         painelPlacares.add(placares[ADVERSARIO]);
-        painelMensagens.add(mensagens[ADVERSARIO]);
         painelNomes.add(nomes[ADVERSARIO]);
         
         placares[LOCAL].atualizar();
@@ -160,29 +146,14 @@ public class PainelPrincipal extends JPanel {
         this.updateUI();
     }
     
-
-    public JLabel[] getMensagens() {
-        return mensagens;
-    }
-
-    public void setMensagens(JLabel[] mensagens) {
-        this.mensagens = mensagens;
-    }
-
+    
+    
     public JanelaPrincipal getPai() {
         return pai;
     }
 
     public void setPai(JanelaPrincipal pai) {
         this.pai = pai;
-    }
-
-    public JPanel getPainelMensagens() {
-        return painelMensagens;
-    }
-
-    public void setPainelMensagens(JPanel painelMensagens) {
-        this.painelMensagens = painelMensagens;
     }
 
     public JPanel getPainelPlacares() {
@@ -231,13 +202,5 @@ public class PainelPrincipal extends JPanel {
 
     public PainelPlacar getPlacarAdversario() {
         return placares[ADVERSARIO];
-    }
-
-    public String getMensagemJogador() {
-        return mensagens[LOCAL].getText();
-    }
-
-    public String getMensagemAdversario() {
-        return mensagens[ADVERSARIO].getText();
     }
 }

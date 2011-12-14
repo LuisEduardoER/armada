@@ -52,7 +52,7 @@ public class NetworkManager {
     
     private void sendPackage(Package pack){
         String xml = pack.toXML();
-        this.connection.sendData(xml);
+        //this.connection.sendData(xml);
         
     }
 

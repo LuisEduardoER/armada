@@ -21,6 +21,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.Timer;
+import main.Jogo;
 import main.Main;
 
 /**
@@ -34,6 +35,7 @@ public class PainelInformacoes extends JPanel {
     private JLabel labelAdversarioPreparado;
     private JButton botaoAtirar;
     private JButton botaoPreparar;
+    private GridBagConstraints gbcTiros;
     private ArrayList<JRadioButton> tiros;
     private Jogador jogador;
     private Timer timer;
@@ -42,20 +44,19 @@ public class PainelInformacoes extends JPanel {
     public PainelInformacoes(Jogador jogador) {
         this.jogador = jogador;
 
+        this.gbcTiros = new GridBagConstraints();
         this.ativarModoPreparo();
-        //this.ativarModoJogo();
     }
 
     public void reiniciar() {
         this.tempo = TEMPO_TURNO + 1;
         this.botaoAtirar.setVisible(false);
 
-        Jogador jog = Main.jogo.getJogador(true);
-        for(int i = jog.getTabuleiro().getNavios().length; i < tiros.size(); i++){
-            tiros.remove(i);
-        }
+        Jogador jog = Jogo.getJogador(true);
 
+        this.atualizarContagemNavios();
         this.atualizarContagemTiros();
+        timer.restart();
     }
 
     private void ativarModoPreparo() {
@@ -98,18 +99,13 @@ public class PainelInformacoes extends JPanel {
         this.add(labelTimer, gbc);
 
         this.tiros = new ArrayList<JRadioButton>();
-        gbc.insets = new java.awt.Insets(1, 1, 1, 1);
-        gbc.gridwidth = 1;
+        gbcTiros.insets = new java.awt.Insets(1, 1, 1, 1);
+        gbcTiros.gridwidth = 1;
 
         int x = 0;
         int y = 1;
-        for(int i = 0; i < this.jogador.getTabuleiro().getNavios().length; i++){
-            tiros.add(new JRadioButton());
-            tiros.get(i).setSelected(true);
-            tiros.get(i).setEnabled(false);
-            gbc.gridx = x;
-            gbc.gridy = y;
-            this.add(tiros.get(i), gbc);
+        for(int i = 0; i < this.jogador.getTabuleiro().getQtdeNaviosVivos(); i++){
+            adicionarTiro(i, x, y);
             if(x == 5){
                 x = 0;
                 y++;
@@ -124,6 +120,7 @@ public class PainelInformacoes extends JPanel {
 
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
+                timer.stop();
                 Main.jogo.atirar();
             }
         });
@@ -165,15 +162,15 @@ public class PainelInformacoes extends JPanel {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 tempo = tempo - 1;
                 atualizaTimer(tempo);
-                
-                Jogador jog = Main.jogo.getJogador(true);
+
+                Jogador jog = Jogo.getJogador(true);
 
                 if(jog.getTipo() == TipoJogador.ADVERSARIO){
                     Random random = new Random();
-                    int i = random.nextInt(jogador.getTabuleiro().getTamanho() - 1);
-                    int j = random.nextInt(jogador.getTabuleiro().getTamanho() - 1);
+                    int i = random.nextInt(jogador.getTabuleiro().getTamanho());
+                    int j = random.nextInt(jogador.getTabuleiro().getTamanho());
 
-                    if(jog.getTabuleiro().getNavios().length == jog.getTiros().size()){
+                    if(jog.getTabuleiro().getQtdeNaviosVivos() == jog.getTiros().size()){
                         Main.jogo.atirar();
                     } else {
                         Main.jogo.adicionarAtaque(new int[]{i, j});
@@ -191,8 +188,50 @@ public class PainelInformacoes extends JPanel {
         timer.start();
     }
 
+    public void atualizarContagemNavios() {
+        Jogador jog = Jogo.getJogador(true);
+
+        int qtdeNavios = jog.getTabuleiro().getQtdeNaviosVivos();
+        int qtdeTiros = tiros.size();
+
+        for(int i = qtdeTiros; i > qtdeNavios; i--){
+            this.remove(tiros.get(i - 1));
+            tiros.remove(i - 1);
+        }
+
+        int x = 0;
+        int y = 1;
+        for(int i = 0; i < tiros.size(); i++){
+            if(x == 5){
+                x = 0;
+                y++;
+            } else {
+                x++;
+            }
+        }
+        
+        for(int i = qtdeTiros; i < qtdeNavios; i++){
+            adicionarTiro(i, x, y);
+            if(x == 5){
+                x = 0;
+                y++;
+            } else {
+                x++;
+            }
+        }
+    }
+
+    private void adicionarTiro(int i, int x, int y) {
+        tiros.add(i, new JRadioButton());
+        tiros.get(i).setSelected(true);
+        tiros.get(i).setEnabled(false);
+        gbcTiros.gridx = x;
+        gbcTiros.gridy = y;
+        this.add(tiros.get(i), gbcTiros);
+    }
+
     public void atualizarContagemTiros() {
-        Jogador jog = Main.jogo.getJogador(true);
+        Jogador jog = Jogo.getJogador(true);
 
         //setar tudo como selecionado
         for(int i = 0; i < tiros.size(); i++){
@@ -203,7 +242,7 @@ public class PainelInformacoes extends JPanel {
             tiros.get(i).setSelected(false);
         }
 
-        if(tiros.size() == jog.getTiros().size() && jog.getTipo() == TipoJogador.LOCAL){
+        if(jog.getTipo() == TipoJogador.LOCAL){
             this.botaoAtirar.setVisible(true);
         } else {
             this.botaoAtirar.setVisible(false);

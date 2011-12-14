@@ -46,7 +46,7 @@ public class PainelChat extends JPanel {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 if(evt.getKeyCode() == KeyEvent.VK_ENTER)
                     if(!campoMensagem.getText().equals(""))
-                        enviouMensagem();
+                        enviarMensagem();
             }
         });
 
@@ -65,16 +65,26 @@ public class PainelChat extends JPanel {
     }
     
     
-    private void enviouMensagem(){
-        String nome = this.jogador1.getNome() + " diz:\n";
+    private void escreverMensagem(Jogador enviador, String mensagem){
+        String nome = enviador.getNome() + " diz:\n";
         
-        if(this.ultimoEnviador != null && this.ultimoEnviador.equals(jogador1))
+        if(this.ultimoEnviador != null && this.ultimoEnviador.equals(enviador))
             nome = "";
         
-        this.areaTexto.append(nome + "   " + this.campoMensagem.getText() + "\n");
+        this.areaTexto.append(nome + "   " + mensagem + "\n");
         this.campoMensagem.setText("");
         
-        this.ultimoEnviador = jogador1;
+        this.ultimoEnviador = enviador;
+    }
+    
+    
+    public void receberMensagem(String mensagem){
+        this.escreverMensagem(jogador2, mensagem);
+    }
+    
+    
+    private void enviarMensagem(){
+        this.escreverMensagem(jogador1, this.campoMensagem.getText());
         
         //Atenção. Isso é um teste. Eu sei que isso não deve ficar aqui, e não irá ficar.
         Main.jogo.preparar(jogador2);

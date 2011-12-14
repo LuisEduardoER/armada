@@ -8,9 +8,12 @@ import gui.paineis.PainelPlacar;
 import gui.paineis.PainelPrincipal;
 import gui.paineis.PainelTabuleiro;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 
 /**
@@ -35,6 +38,15 @@ public class JanelaPrincipal extends JFrame implements KeyListener {
     /** Creates new form JanelaPrincipal */
     public JanelaPrincipal(Jogador jogador1, Jogador jogador2) {
         addKeyListener(this);
+                
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        
+        int w = getSize().width;
+        int h = getSize().height;
+        int x = (dim.width-w)/2;
+        int y = (dim.height-h)/2;
+
+        setLocation(x, y);
 
         this.setTitle("Armada");
         this.setFocusable(true);
@@ -46,10 +58,20 @@ public class JanelaPrincipal extends JFrame implements KeyListener {
 
         this.construirPaineis();
 
-        this.setarTamanho(1);
+        this.redimensionarJanela(1);
 
         this.pack();
     }
+    
+    
+    public void ganhar(Jogador jogador){
+        JanelaVitoria janela = new JanelaVitoria(this, true, jogador.getNome());
+        
+        janela.setModalityType(java.awt.Dialog.DEFAULT_MODALITY_TYPE);
+        janela.setModal(true);
+        janela.setVisible(true);
+    }
+    
 
     private void construirPaineis() {
         this.painelSeparacao = new JSplitPane();
@@ -65,7 +87,7 @@ public class JanelaPrincipal extends JFrame implements KeyListener {
         this.painelSeparacao.setRightComponent(painelPrincipal);
     }
 
-    private void setarTamanho(int qtdeJogadores) {
+    private void redimensionarJanela(int qtdeJogadores) {
         PainelTabuleiro tabuleiroJogador = painelPrincipal.getTabuleiroJogador();
         PainelPlacar placarJogador = painelPrincipal.getPlacarJogador();
         
@@ -94,9 +116,14 @@ public class JanelaPrincipal extends JFrame implements KeyListener {
     }
     
     
+    public void conectarJogadorAdversario(String nome){
+        JOptionPane.showMessageDialog(this, nome + " se conectou e é o seu adversário!", "Adversario Conectado", JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    
     public void jogar(){
         this.painelPrincipal.ativarModoJogo();
-        this.setarTamanho(2);
+        this.redimensionarJanela(2);
         this.painelLateral.getPainelInfo().ativarModoJogo();
     }
 

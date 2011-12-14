@@ -12,9 +12,6 @@ import classes.Orientacao;
 import classes.TipoJogador;
 import gui.janelas.JanelaSalas;
 import java.util.ArrayList;
-import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import network.datapackage.Package;
 
 /**
@@ -29,16 +26,11 @@ public class Jogo {
 
     private JanelaSalas janelaSalas;
     private JanelaPrincipal janelaPrincipal;
-    
     private Jogador jogadorLocal;
     private Jogador jogadorAdversario;
-    
     private Navio navioSelecionado;
-    
     public static int turno;
     public static boolean modoPreparacao;
-    
-    private Thread threadTeste;
 
     public Jogo() {
         this.jogadorLocal = new Jogador(TipoJogador.LOCAL);
@@ -46,38 +38,36 @@ public class Jogo {
 
         Jogo.turno = 0;
         Jogo.modoPreparacao = true;
-
+        
         this.janelaSalas = new JanelaSalas();
         this.janelaPrincipal = new JanelaPrincipal(jogadorLocal, jogadorAdversario);
 
-        //comente qual que não deve aparecer (para testes)
-        //this.janelaSalas.setVisible(true);
-        this.janelaPrincipal.setVisible(true);
-        
-        this.threadTeste = new Thread(){
-            @Override
-            public void run(){
-                try {
-                    while(true){
-                        Jogador jog = Main.jogo.getJogador(true);
-                        
-                        Random random = new Random();
-                        int i = random.nextInt(jogadorLocal.getTabuleiro().getTamanho() - 1);
-                        int j = random.nextInt(jogadorLocal.getTabuleiro().getTamanho() - 1);
-
-                        adicionarAtaque(new int[]{i, j});
-                        if(jog.getTabuleiro().getNavios().length == jog.getTiros().size()){
-                            atirar();
-                        } else {
-                            Thread.sleep(2000);
-                        }                            
-                    }
-                } catch(InterruptedException ex){
-                    Logger.getLogger(Jogo.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        };
+        iniciarJanelaSalas();
     }
+    
+    
+    public void iniciarJanelaSalas(){
+        this.janelaSalas.setVisible(true);
+    }
+    
+    
+    public void iniciarJanelaPrincipal(String nomeJogador){
+        jogadorLocal.setNome(nomeJogador);
+        
+        this.janelaPrincipal.setVisible(true);
+    }
+    
+    
+    public void conectarJogadorAdversario(String nome){
+        jogadorAdversario.setNome(nome);
+        janelaPrincipal.conectarJogadorAdversario(nome);
+    }
+    
+    
+    public void receberMensagem(String mensagem){
+        this.janelaPrincipal.getPainelLateral().getPainelChat().receberMensagem(mensagem);
+    }
+    
 
     public void selecionarNavio(Navio navio) {
         this.navioSelecionado = navio;
@@ -115,24 +105,21 @@ public class Jogo {
                 jogadorLocal.setComecaJogando(true);
             }
         }
+        
+        Runtime.getRuntime().gc();
     }
 
     public void trocarTurno() {
-        Jogador jogador = this.getJogador(true);
+        Jogador jogador = Jogo.getJogador(true);
         jogador.getTiros().clear();
 
         Jogo.turno++;
 
         if(jogador.getTipo() == TipoJogador.ADVERSARIO){
-            janelaPrincipal.getPainelPrincipal().getTabuleiroJogador().atirar();
-            janelaPrincipal.getPainelPrincipal().getTabuleiroJogador().limparGrid(false);
+            janelaPrincipal.getPainelPrincipal().getTabuleiroJogador().limparGrid(false, true);
             janelaPrincipal.getPainelPrincipal().getPlacarJogador().atualizar();
-            //threadTeste.suspend();
         } else {
-            //if(turno <= 2) threadTeste.start();
-            //else threadTeste.resume();
-            janelaPrincipal.getPainelPrincipal().getTabuleiroAdversario().atirar();
-            janelaPrincipal.getPainelPrincipal().getTabuleiroAdversario().limparGrid(false);
+            janelaPrincipal.getPainelPrincipal().getTabuleiroAdversario().limparGrid(false, true);
             janelaPrincipal.getPainelPrincipal().getPlacarAdversario().atualizar();
         }
 
@@ -145,51 +132,59 @@ public class Jogo {
      * @param posicao que irá ser atacada
      * @return true caso o ataque seja uma adição, e false caso ja existia antes ou ja tenha acabado a qtde de tiros.
      */
-    public void adicionarAtaque(int[] pos) {        
-        Jogador atirador = this.getJogador(true);
-        Jogador levadorDeBala = this.getJogador(false);
-        
+    public void adicionarAtaque(int[] pos) {
+        Jogador atirador = Jogo.getJogador(true);
+        Jogador levadorDeBala = Jogo.getJogador(false);
+
         Integer[] posicao = toInteger(pos);
         int posicaoNaLista = this.getIndexPosicao(atirador.getTiros(), posicao);
 
         //se for um lugar ja atingido anteriormente, retorne.
-        if(levadorDeBala.getTabuleiro().getCasas()[pos[0]][pos[1]].atingido) return;
-        
+        if(levadorDeBala.getTabuleiro().getCasas()[pos[0]][pos[1]].atingido){
+            return;
+        }
+
         //se ataque ja existe, exclua ele.
         if(posicaoNaLista >= 0){
             atirador.getTiros().remove(posicaoNaLista);
         } else {
             //se nao acabou o limite de tiros.
-            if(atirador.getTiros().size() < atirador.getTabuleiro().getNavios().length){
+            if(atirador.getTiros().size() < atirador.getTabuleiro().getQtdeNaviosVivos()){
                 atirador.getTiros().add(posicao);
             }
         }
 
         janelaPrincipal.getPainelLateral().getPainelInfo().atualizarContagemTiros();
-        if(atirador.getTipo() == TipoJogador.ADVERSARIO)
+        if(atirador.getTipo() == TipoJogador.ADVERSARIO){
             janelaPrincipal.getPainelPrincipal().getTabuleiroJogador().atualizarTiros();
-        else
-            janelaPrincipal.getPainelPrincipal().getTabuleiroAdversario().atualizarTiros();            
+        } else {
+            janelaPrincipal.getPainelPrincipal().getTabuleiroAdversario().atualizarTiros();
+        }
     }
-
-    public void atirar() {
-        Jogador atirador = this.getJogador(true);
-        Jogador levadorDeBala = this.getJogador(false);
-
+    
+    
+    public void atirar(){
+        Jogador atirador = Jogo.getJogador(true);
+        Jogador levadorDeBala = Jogo.getJogador(false);
+        
         ArrayList<Integer[]> tiros = atirador.getTiros();
-
+        
         for(Integer[] pos : tiros){
             levadorDeBala.getTabuleiro().getCasas()[pos[0]][pos[1]].atingido = true;
         }
         
         this.atualizarStatusNavios(levadorDeBala);
-
+        
         if(levadorDeBala.getTipo() == TipoJogador.LOCAL){
             janelaPrincipal.getPainelPrincipal().getTabuleiroJogador().atirar();
         } else {
             janelaPrincipal.getPainelPrincipal().getTabuleiroAdversario().atirar();
         }
-
+        
+        if(levadorDeBala.getTabuleiro().todosNaviosDerrubados()){
+            janelaPrincipal.ganhar(atirador);
+        }
+        
         this.trocarTurno();
     }
 
@@ -214,6 +209,8 @@ public class Jogo {
             navio.setVivo(!morto);
         }
     }
+
+
 
     /**
      * Converte um array de tipo int (primitivo) par um array de Integer (objeto)
@@ -251,7 +248,7 @@ public class Jogo {
         return -1;
     }
 
-    public Jogador getJogador(boolean jogandoNesteTurno) {
+    public static Jogador getJogador(boolean jogandoNesteTurno) {
         int a = 0;
         int b = 1;
 
@@ -260,10 +257,10 @@ public class Jogo {
             b = 0;
         }
 
-        if((Jogo.turno % 2 == a && jogadorLocal.comecaJogando()) || (Jogo.turno % 2 == b && !jogadorLocal.comecaJogando())){
-            return jogadorLocal;
+        if((Jogo.turno % 2 == a && Main.jogo.jogadorLocal.comecaJogando()) || (Jogo.turno % 2 == b && !Main.jogo.jogadorLocal.comecaJogando())){
+            return Main.jogo.jogadorLocal;
         } else {
-            return jogadorAdversario;
+            return Main.jogo.jogadorAdversario;
         }
     }
 

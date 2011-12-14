@@ -13,5 +13,11 @@ public class PortaAvioes extends Navio {
         this();
         this.pos = pos;
     }
+    
+    public PortaAvioes(int[] pos, Orientacao ori){
+        this();
+        this.pos = pos;
+        this.orientacao = ori;
+    }
 }
  

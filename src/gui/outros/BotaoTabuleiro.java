@@ -87,7 +87,7 @@ public class BotaoTabuleiro extends JButton {
             if(highlightNavio){
                 tam = 9;
             } else if(highlightMira){
-                tam = 2;
+                tam = 1;
             }
             
             g2d.setColor(this.getBackground());

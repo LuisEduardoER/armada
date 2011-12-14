@@ -10,6 +10,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -33,9 +34,9 @@ public class PainelTabuleiro extends JPanel {
     private Jogador jogador;
     private int[] posicaoMouseOver;   //posicao no grid que o cursor esta em cima. É atualizado pelo metodo mouseEntered
     private BotaoTabuleiro[][] grid;
-    private int tamanho;
+    private int tamanho;  // tamanho do grid (tamanho x tamanho)
     private int t = 33;   //tamanho do botao
-    private boolean habilitado;   //booleano que define se o grid é utilizavel (botoes funcionando) ou não.
+    
     //----------CONSTANTES------------
     private final String LETRAS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private final Color corPadrao = Color.white;
@@ -60,39 +61,6 @@ public class PainelTabuleiro extends JPanel {
         this.grid = new BotaoTabuleiro[tamanho][tamanho];
 
         this.construirGrid();
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public JButton[][] getGrid() {
-        return grid;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public boolean isHabilitado() {
-        return habilitado;
-    }
-
-    /**
-     * 
-     * @param habilitado
-     */
-    public void setHabilitado(boolean habilitado) {
-        if(this.habilitado == habilitado){
-            return;
-        } else {
-            this.habilitado = habilitado;
-        }
-        for(int i = 0; i < this.tamanho; i++){
-            for(int j = 0; j < this.tamanho; j++){
-                this.grid[i][j].setEnabled(habilitado);
-            }
-        }
     }
 
     private void construirGrid() {
@@ -126,7 +94,7 @@ public class PainelTabuleiro extends JPanel {
                 this.grid[i][j].setPreferredSize(new java.awt.Dimension(this.t, this.t));
                 this.grid[i][j].setOpaque(true);
                 this.grid[i][j].setBackground(this.corPadrao);
-                this.grid[i][j].addMouseListener(new java.awt.event.MouseAdapter() {
+                this.grid[i][j].addMouseListener(new MouseAdapter() {
 
                     @Override
                     public void mouseEntered(MouseEvent evt) {
@@ -137,7 +105,7 @@ public class PainelTabuleiro extends JPanel {
 
                     @Override
                     public void mouseExited(MouseEvent evt) {
-                        limparGrid(false);
+                        limparGrid(false, false);
                     }
 
                     @Override
@@ -180,12 +148,11 @@ public class PainelTabuleiro extends JPanel {
              * - Ser o tabuleiro do jogador adversario. (primeira condicao)
              * - Estar na vez dele de adicionarAtaque.  (segunda condicao)
              * 
-             * Sim, eu sei que isso pode parecer meio óbvio, mas vai saber quem está lendo isso aqui né...
              */
             boolean turnoPar = Jogo.turno % 2 == 0;
 
-            if(jogador.getTipo() == TipoJogador.ADVERSARIO
-                    && ((turnoPar && jogador.comecaJogando()) || (!turnoPar && !jogador.comecaJogando()))){
+            if(/*jogador.getTipo() == TipoJogador.ADVERSARIO
+                    && */((turnoPar && jogador.comecaJogando()) || (!turnoPar && !jogador.comecaJogando()))){
 
                 Main.jogo.adicionarAtaque(posicaoMouseOver);
             }
@@ -193,12 +160,11 @@ public class PainelTabuleiro extends JPanel {
     }
 
     public void atualizarTiros() {
-        ArrayList<Integer[]> tiros = Main.jogo.getJogador(true).getTiros();
+        ArrayList<Integer[]> tiros = Jogo.getJogador(true).getTiros();
 
         for(int i = 0; i < tamanho; i++){
             for(int j = 0; j < tamanho; j++){
                 if(!jogador.getTabuleiro().getCasas()[i][j].atingido){
-                    //grid[i][j].setBackground(corPadrao);
                     grid[i][j].setNumTiro(0);
                 }
             }
@@ -210,9 +176,9 @@ public class PainelTabuleiro extends JPanel {
             grid[tiro[0]][tiro[1]].updateUI();
         }
     }
-
+    
     public void atirar() {
-        ArrayList<Integer[]> tiros = Main.jogo.getJogador(true).getTiros();
+        ArrayList<Integer[]> tiros = Jogo.getJogador(true).getTiros();
 
         for(Integer[] tiro : tiros){
             BotaoTabuleiro botao = this.grid[tiro[0]][tiro[1]];
@@ -233,7 +199,7 @@ public class PainelTabuleiro extends JPanel {
         }
     }
 
-    private void mostrarNaviosMortos() {
+    public void mostrarNaviosMortos() {
         ArrayList<Navio> navios = jogador.getTabuleiro().getNaviosPosicionados();
         for(int i = 0; i < navios.size(); i++){
             Navio navio = navios.get(i);
@@ -257,7 +223,7 @@ public class PainelTabuleiro extends JPanel {
      */
     public void atualizarPosicaoNavios() {
         ImageIcon img = null;
-        this.limparGrid(true);
+        this.limparGrid(true, false);
 
         ArrayList<Navio> navios = jogador.getTabuleiro().getNaviosPosicionados();
         for(Navio navio : navios){
@@ -281,12 +247,16 @@ public class PainelTabuleiro extends JPanel {
         }
     }
 
-    public void limparGrid(boolean limparNavios) {
+    public void limparGrid(boolean limparNavios, boolean limparTiros) {
         for(int i = 0; i < tamanho; i++){
             for(int j = 0; j < tamanho; j++){
                 this.grid[i][j].setBackground(this.corPadrao);
                 this.grid[i][j].setHighlightMira(false);
                 this.grid[i][j].setHighlightNavio(false);
+                if(limparTiros){
+                    this.grid[i][j].setNumTiro(0);
+                    this.grid[i][j].updateUI();
+                }
                 if(limparNavios){
                     this.grid[i][j].setImagemNavio(iconeVazio);
                 }
@@ -311,7 +281,7 @@ public class PainelTabuleiro extends JPanel {
         return this.jogador.getTabuleiro().getCoordenadasNavio(pos, this.pai.getNavioSelecionado());
     }
 
-    public void mouseOver(int[] pos) {
+    private void mouseOver(int[] pos) {
         Navio navio = pai.getNavioSelecionado();
         ArrayList<Integer[]> coords = this.jogador.getTabuleiro().getCoordenadasNavio(pos, navio);
 
@@ -327,29 +297,33 @@ public class PainelTabuleiro extends JPanel {
                 this.grid[coords.get(i)[0]][coords.get(i)[1]].setOrientacao(navio.getOrientacao());
             }
         } else {
-            if(this.jogador.getTipo() == TipoJogador.ADVERSARIO && Main.jogo.getJogador(true).getTipo() == TipoJogador.LOCAL){
-                Color cor = this.corSelecaoErro;
-
-                for(int i = 0; i < tamanho; i++){
-                    if(i != pos[1]){
-                        this.grid[pos[0]][i].setHighlightMira(true);
-                        this.grid[pos[0]][i].setBackground(cor);
-                        this.grid[pos[0]][i].setOrientacao(Orientacao.VERTICAL);
-                    }
-                }
-
-                for(int i = 0; i < tamanho; i++){
-                    if(i != pos[0]){
-                        this.grid[i][pos[1]].setHighlightMira(true);
-                        this.grid[i][pos[1]].setBackground(cor);
-                        this.grid[i][pos[1]].setOrientacao(Orientacao.HORIZONTAL);
-                    }
-                }
-            }
+            mirar(pos);
         }
     }
 
     public void mouseOver() {
         this.mouseOver(posicaoMouseOver);
+    }
+
+    private void mirar(int[] pos) {
+        if(this.jogador.getTipo() == TipoJogador.ADVERSARIO && Jogo.getJogador(true).getTipo() == TipoJogador.LOCAL){
+            Color cor = this.corSelecaoErro;
+
+            for(int i = 0; i < tamanho; i++){
+                if(i != pos[1]){
+                    this.grid[pos[0]][i].setHighlightMira(true);
+                    this.grid[pos[0]][i].setBackground(cor);
+                    this.grid[pos[0]][i].setOrientacao(Orientacao.VERTICAL);
+                }
+            }
+
+            for(int i = 0; i < tamanho; i++){
+                if(i != pos[0]){
+                    this.grid[i][pos[1]].setHighlightMira(true);
+                    this.grid[i][pos[1]].setBackground(cor);
+                    this.grid[i][pos[1]].setOrientacao(Orientacao.HORIZONTAL);
+                }
+            }
+        }
     }
 }
